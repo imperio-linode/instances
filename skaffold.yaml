@@ -1,0 +1,13 @@
+apiVersion: skaffold/v3
+kind: Config
+metadata:
+  name: imperio-instances
+build:
+  platforms: [ "linux/arm64" ]
+  artifacts:
+    - image: finda/imperio-instances
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  rawYaml:
+    - imperio-instances.yaml

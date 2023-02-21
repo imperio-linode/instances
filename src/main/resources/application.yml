@@ -1,0 +1,43 @@
+server:
+  port: 9001
+spring:
+  application:
+    name: imperio-instances
+  main:
+    allow-bean-definition-overriding: true
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+  r2dbc:
+    url: r2dbc:postgres://10.43.230.146:5432/imperio
+    name: imperio
+    username: postgres
+    password: y3aFEnnH7e
+    pool:
+      initial-size: 10
+      enabled: false
+      validation-depth: local
+  task:
+    execution:
+      pool:
+        allow-core-thread-timeout: true
+        core-size: 8
+  devtools:
+    restart:
+      enabled: false
+
+management:
+  server:
+    port: 9001
+    ssl:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      enabled: true
