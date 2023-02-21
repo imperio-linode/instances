@@ -1,5 +1,6 @@
 package com.bntech.imperio.instances.service;
 
+import com.bntech.imperio.instances.data.dto.InstanceDetailsDto;
 import com.bntech.imperio.instances.data.dto.InstanceDto;
 import com.bntech.imperio.instances.data.model.Instance;
 import com.bntech.imperio.instances.data.object.InstanceRequest;
@@ -15,9 +16,11 @@ public interface InstanceService {
      * @param vmId: id of deployed instance
      * @return Mono<Instance>
      */
-    Mono<Instance> findVm(Mono<String> vmId);
+    Mono<Instance> vm(Mono<String> vmId);
 
-    Flux<Instance> createVms(Flux<InstanceRequest> requestMono);
+    Mono<InstanceDetailsDto> vmDetails(Mono<String> id);
+
+    Flux<Instance> makeVm(Flux<InstanceRequest> requestMono);
 
     //start sending updates to front
     Flux<Instance> subscribeNewVmInfo(Flux<Instance> requestMono);

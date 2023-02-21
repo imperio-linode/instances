@@ -1,9 +1,9 @@
 package com.bntech.imperio.instances.handler;
 
 
+import com.bntech.imperio.instances.data.dto.InstanceDetailsDto;
 import com.bntech.imperio.instances.data.dto.InstanceDto;
 import com.bntech.imperio.instances.data.model.Instance;
-import com.bntech.imperio.instances.data.model.repository.InstanceRepo;
 import com.bntech.imperio.instances.data.object.InstanceResponse;
 import com.bntech.imperio.instances.service.InstanceService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +22,11 @@ public class InstanceHandler {
 
     final private InstanceService instanceService;
     final private ErrorHandler errorHandler;
-    final private InstanceRepo repo;
 
     @Autowired
-    public InstanceHandler(InstanceService instanceService, final ErrorHandler errorHandler, InstanceRepo repo) {
+    public InstanceHandler(InstanceService instanceService, final ErrorHandler errorHandler) {
         this.instanceService = instanceService;
         this.errorHandler = errorHandler;
-        this.repo = repo;
     }
 
     public Mono<ServerResponse> hello(ServerRequest request) {
@@ -42,7 +40,8 @@ public class InstanceHandler {
         return request.pathVariable("id")
                 .transform(Mono::just)
                 .log("com.bntech.long")
-                .transform(instanceService::findVm)
+                .transform(instanceService::vmDetails)
+
 //                .transform(instanceService::instanceToResponse)
                 .log("com.bntech.instance")
                 .transform(this::rawInstanceServerResponse);
@@ -57,20 +56,8 @@ public class InstanceHandler {
         return ServerResponse.ok().body(instanceMono, InstanceResponse.class);
     }
 
-    private Mono<ServerResponse> rawInstanceServerResponse(Mono<Instance> instanceMono) {
-        return ServerResponse.ok().body(instanceMono, InstanceDto.class);
+    private Mono<ServerResponse> rawInstanceServerResponse(Mono<InstanceDetailsDto> instanceMono) {
+        return ServerResponse.ok().body(instanceMono, InstanceDetailsDto.class);
     }
 
 }
-
-
-
-//        return request.pathVariable("id")
-//                .transform(Mono::just)
-//                .onErrorResume(throwable -> Mono.just("1"))
-//                .transform(instanceService::findVm)
-//                .log("com.bntech.instanceDetailsToMono")
-//                .transform(instanceService::instanceToResponse)
-//                .map(InstanceResponse::new)
-//                .transform(this::instanceServerResponse)
-//                .onErrorResume(errorHandler::throwableError);

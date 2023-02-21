@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,12 +17,12 @@ public final class InstanceAddress {
     @Column("i_ip_id")
     private final Integer id;
     @Column("i_ip_v4")
-    private final List<String> instanceIpv4;
+    private final List<InetAddress> instanceIpv4;
     @Column("i_ip_v6")
-    private final String instanceIpv6;
+    private final InetAddress instanceIpv6;
 
     @JsonCreator
-    public InstanceAddress(Integer id, List<String> instanceIpv4, String instanceIpv6) {
+    public InstanceAddress(Integer id, List<InetAddress> instanceIpv4, InetAddress instanceIpv6) {
         this.id = id;
         this.instanceIpv4 = instanceIpv4;
         this.instanceIpv6 = instanceIpv6;
@@ -31,12 +34,12 @@ public final class InstanceAddress {
     }
 
     @Column("i_ip_v4")
-    public List<String> instanceIpv4() {
+    public List<InetAddress> instanceIpv4() {
         return instanceIpv4;
     }
 
     @Column("i_ip_v6")
-    public String instanceIpv6() {
+    public InetAddress instanceIpv6() {
         return instanceIpv6;
     }
 
