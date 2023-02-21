@@ -62,5 +62,4 @@ public final class InstanceAddress {
                 "instanceIpv4=" + instanceIpv4 + ", " +
                 "instanceIpv6=" + instanceIpv6 + ']';
     }
-
 }

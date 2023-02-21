@@ -99,5 +99,4 @@ public final class InstanceAlert {
                 "network_out=" + network_out + ", " +
                 "transfer_quota=" + transfer_quota + ']';
     }
-
 }

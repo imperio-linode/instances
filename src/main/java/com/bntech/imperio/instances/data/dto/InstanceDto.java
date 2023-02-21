@@ -3,7 +3,6 @@ package com.bntech.imperio.instances.data.dto;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.Builder;
 
-import java.time.DayOfWeek;
 import java.time.Instant;
 import java.util.List;
 

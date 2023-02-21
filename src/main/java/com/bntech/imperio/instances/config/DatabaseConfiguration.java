@@ -25,7 +25,7 @@ import java.util.BitSet;
 import java.util.List;
 
 @Configuration
-@EnableR2dbcRepositories({"com.bntech.brahma.gateway.repository"})
+@EnableR2dbcRepositories({"com.bntech.imperio.instances.data.model.repository"})
 @EnableTransactionManagement
 public class DatabaseConfiguration {
 

@@ -14,8 +14,6 @@ public final class InstanceSpec {
     @Column("i_spec_id")
     @Id
     private final Integer id;
-    @Column("i_id")
-    private final String vmId;
     @Column("i_spec_disk")
     private final Integer disk;
     @Column("i_spec_memory")
@@ -27,13 +25,11 @@ public final class InstanceSpec {
 
     @JsonCreator
     public InstanceSpec(Integer id,
-                        String vmId,
                         Integer disk,
                         Integer memory,
                         Integer transfer,
                         Integer vcpus) {
         this.id = id;
-        this.vmId = vmId;
         this.disk = disk;
         this.memory = memory;
         this.transfer = transfer;
@@ -44,11 +40,6 @@ public final class InstanceSpec {
     @Id
     public Integer id() {
         return id;
-    }
-
-    @Column("i_id")
-    public String vmId() {
-        return vmId;
     }
 
     @Column("i_spec_disk")
@@ -77,7 +68,6 @@ public final class InstanceSpec {
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (InstanceSpec) obj;
         return Objects.equals(this.id, that.id) &&
-                Objects.equals(this.vmId, that.vmId) &&
                 Objects.equals(this.disk, that.disk) &&
                 Objects.equals(this.memory, that.memory) &&
                 Objects.equals(this.transfer, that.transfer) &&
@@ -86,18 +76,16 @@ public final class InstanceSpec {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, vmId, disk, memory, transfer, vcpus);
+        return Objects.hash(id, disk, memory, transfer, vcpus);
     }
 
     @Override
     public String toString() {
         return "InstanceSpec[" +
                 "id=" + id + ", " +
-                "vmId=" + vmId + ", " +
                 "disk=" + disk + ", " +
                 "memory=" + memory + ", " +
                 "transfer=" + transfer + ", " +
                 "vcpus=" + vcpus + ']';
     }
-
 }

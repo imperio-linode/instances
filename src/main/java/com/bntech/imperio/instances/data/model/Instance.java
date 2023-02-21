@@ -2,20 +2,16 @@ package com.bntech.imperio.instances.data.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.DayOfWeek;
 import java.time.Instant;
 
 @Table(name = "instance")
 @JsonAutoDetect
-//@JsonSerialize(using = JsonSerializer.class)
 @Getter
 @Setter
 public class Instance {
@@ -26,7 +22,7 @@ public class Instance {
     private final Integer alert;
     @Column("instance_address_id")
     private final Integer address;
-    @Column("instance_spec_id")
+    @Column("instance_specs_id")
     private final Integer spec;
     @Column("instance_backup_available")
     private final Boolean available;
@@ -90,6 +86,5 @@ public class Instance {
     public String toString() {
         return String.format("Instance: %s, %s, %s", this.id, this.label, this.image);
     }
-
 
 }

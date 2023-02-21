@@ -10,9 +10,11 @@ import com.bntech.imperio.instances.data.model.repository.InstanceAlertRepo;
 import com.bntech.imperio.instances.data.model.repository.InstanceRepo;
 import com.bntech.imperio.instances.data.model.repository.InstanceSpecRepo;
 import com.bntech.imperio.instances.data.object.InstanceRequest;
+import com.bntech.imperio.instances.handler.ErrorHandler;
 import com.bntech.imperio.instances.service.InstanceService;
 import com.bntech.imperio.instances.service.util.TypeConverter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,16 +26,28 @@ import java.util.List;
 @Component
 @Slf4j
 public class InstanceServiceImpl implements InstanceService {
+    private final InstanceRepo instances;
+    private final InstanceAlertRepo alerts;
+    private final InstanceSpecRepo specs;
+    private final InstanceAddressRepo addresses;
+    final ErrorHandler errorHandler;
 
-    InstanceRepo instances;
-    InstanceAlertRepo alerts;
-    InstanceSpecRepo specs;
-    InstanceAddressRepo addresses;
+    @Autowired
+    public InstanceServiceImpl(InstanceRepo instances, InstanceAlertRepo alerts, InstanceSpecRepo specs, InstanceAddressRepo addresses, ErrorHandler errorHandler) {
+        this.instances = instances;
+        this.alerts = alerts;
+        this.specs = specs;
+        this.addresses = addresses;
+        this.errorHandler = errorHandler;
+    }
+
+
+
 
     @Override
-    public Mono<Instance> findVm(Mono<String> vmId) {
+    public Mono<Instance> findVm(Mono<String> id) {
         log.info("Instance Service: Find vm");
-        return vmId
+        return id
                 .transform(TypeConverter::monoStringToLong)
                 .transform(instances::getById)
                 .doOnSuccess(i -> log.info("HERE: " + i.toString()));
@@ -57,17 +71,19 @@ public class InstanceServiceImpl implements InstanceService {
                 .onErrorResume(error -> {
                     log.error("Error transforming instance to InstanceResponse", error);
                     return Mono.empty();
-                })
-                .onErrorStop();
+                });
     }
 
     private Mono<InstanceDto> createDto(Mono<Instance> instance) {
         Mono<InstanceAlert> alert = instance.map(Instance::getAlert)
-                .transform(alerts::getById);
+                .transform(alerts::getById)
+                .log("com.bntech.alert");
         Mono<InstanceSpec> spec = instance.map(Instance::getSpec)
-                .transform(specs::getById);
+                .transform(specs::getById)
+                .log("com.bntech.specs");
         Mono<InstanceAddress> address = instance.map(Instance::getSpec)
-                .transform(addresses::getById);
+                .transform(addresses::getById)
+                .log("com.bntech.addresses");
 
         return Mono.zip(instance, alert, spec, address)
                 .flatMap(n -> Mono.just(InstanceDto.builder()
@@ -107,7 +123,11 @@ public class InstanceServiceImpl implements InstanceService {
                         .updated(n.getT1().getUpdated())
                         .watchdog_enabled(n.getT1().getWatchdog_enabled())
                         .build())
-                );
+                ).log("com.bntech.zip")
+                .onErrorResume(error -> {
+                    log.error("Error transforming instance to InstanceResponse", error);
+                    return Mono.empty();
+                });
     }
 
     private static List<String> tagsToList(Instance i) {

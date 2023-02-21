@@ -8,13 +8,7 @@ import reactor.core.publisher.Mono;
 public class TypeConverter {
 
     public static Mono<Long> monoStringToLong(Mono<String> string) {
-        log.info("Mono string to long");
-        return string
-                .map(str -> {
-                    log.info("Mono to str: {}", str);
-                    return str;
-                })
-                .map(Long::parseLong);
+        return string.map(Long::parseLong);
     }
 
     public static Mono<Long> fluxStringToLong(Flux<String> string) {

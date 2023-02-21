@@ -1,6 +1,7 @@
 package com.bntech.imperio.instances.handler;
 
 
+import com.bntech.imperio.instances.data.dto.InstanceDto;
 import com.bntech.imperio.instances.data.model.Instance;
 import com.bntech.imperio.instances.data.model.repository.InstanceRepo;
 import com.bntech.imperio.instances.data.object.InstanceResponse;
@@ -40,9 +41,9 @@ public class InstanceHandler {
 
         return request.pathVariable("id")
                 .transform(Mono::just)
-                .map(Long::parseLong)
                 .log("com.bntech.long")
-                .transform(repo::getById)
+                .transform(instanceService::findVm)
+//                .transform(instanceService::instanceToResponse)
                 .log("com.bntech.instance")
                 .transform(this::rawInstanceServerResponse);
 
@@ -57,7 +58,7 @@ public class InstanceHandler {
     }
 
     private Mono<ServerResponse> rawInstanceServerResponse(Mono<Instance> instanceMono) {
-        return ServerResponse.ok().body(instanceMono, Instance.class);
+        return ServerResponse.ok().body(instanceMono, InstanceDto.class);
     }
 
 }
