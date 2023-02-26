@@ -9,18 +9,28 @@ import com.bntech.imperio.instances.data.object.InstanceRequest;
 import com.bntech.imperio.instances.handler.ErrorHandler;
 import com.bntech.imperio.instances.service.InstanceService;
 import com.bntech.imperio.instances.service.util.TypeConverter;
+import com.bntech.imperio.instances.service.util.Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 import java.nio.charset.StandardCharsets;
+
+import static com.bntech.imperio.instances.config.Constants.api_TERRAFORM_SINGLE_INSTANCE;
+import static io.netty.util.CharsetUtil.US_ASCII;
 
 
 @Component
@@ -28,11 +38,13 @@ import java.nio.charset.StandardCharsets;
 public class InstanceServiceImpl implements InstanceService {
     private final InstanceRepo instances;
     final ErrorHandler errorHandler;
+    private final HttpClient linodeServices;
 
     @Autowired
-    public InstanceServiceImpl(InstanceRepo instances, ErrorHandler errorHandler) {
+    public InstanceServiceImpl(InstanceRepo instances, ErrorHandler errorHandler, HttpClient tlsClient, @Value("${infrastructure.linode-services.host}") String instancesHost) {
         this.instances = instances;
         this.errorHandler = errorHandler;
+        this.linodeServices = tlsClient.baseUrl(instancesHost);
     }
 
     @Override
@@ -68,6 +80,44 @@ public class InstanceServiceImpl implements InstanceService {
         });
     }
 
+    @Override
+    public Mono<ServerResponse> linodeServicesDeploySingleEngine(Mono<Instance> instance) {
+        return instance.flatMap(details -> {
+            ObjectMapper mapper = new ObjectMapper();
+            ByteBuf requestBody;
+            log.info("Linode request outgoing label: " + details.getLabel());
+
+            try {
+                requestBody = Unpooled.wrappedBuffer(mapper.writeValueAsBytes(details));
+                log.info("Linode request outgoing body: " + requestBody.toString(US_ASCII));
+            } catch (JsonProcessingException e) {
+                return Mono.error(new ServerWebInputException("Error serializing request body."));
+            }
+
+            return linodeServices.post()
+                    .uri(api_TERRAFORM_SINGLE_INSTANCE)
+                    .send(Mono.just(requestBody))
+                    .responseSingle((res, buf) -> Util.stringServerResponse(buf.asString()))
+                    .log("service.impl.RequestsImpl.linodeServicesDeploySingleEngine")
+                    .onErrorResume(ex -> {
+                        if (ex instanceof ServerWebInputException) {
+                            ServerWebInputException swie = (ServerWebInputException) ex;
+                            return ServerResponse.badRequest().body(BodyInserters.fromValue(swie.getMessage()));
+                        } else {
+                            // Handle other exceptions as needed
+                            return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .body(BodyInserters.fromValue("An error occurred while processing the instance create request."));
+                        }
+                    });
+        });
+    }
+
+    @Override
+    public Flux<Instance> subscribeNewVmInfo(Flux<Instance> requestMono) {
+        return null;
+    }
+
     private Mono<Instance> buildInstance(InstanceRequest instanceDetails) {
         return switch (instanceDetails.getRequestType()) {
             //todo: There is a parse because we need diff requests for diff instances
@@ -78,7 +128,8 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     private Mono<Instance> createRegularInstance(InstanceCreateRequest details) {
-        return instances.save(details.toInstance());
+        return instances
+                .save(details.toInstance());
     }
 
     private Mono<Instance> createKubeHostInstance(InstanceCreateRequest details) {
@@ -89,10 +140,7 @@ public class InstanceServiceImpl implements InstanceService {
         return null;
     }
 
-    @Override
-    public Flux<Instance> subscribeNewVmInfo(Flux<Instance> requestMono) {
-        return null;
-    }
+
 
     private Mono<UserDetailsResponseDto> createDto(Mono<DatabaseInstanceDetailsDto> dto) {
         return dto.map(detailsDto -> new UserDetailsResponseDto(

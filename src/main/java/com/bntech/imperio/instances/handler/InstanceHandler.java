@@ -55,12 +55,12 @@ public class InstanceHandler {
                 .transform(this::bytesToObj)
                 .log("instances.handler.InstanceHandler.1")
                 .transform(instanceService::receiveNewInstanceRequest)
-                .log("instances.handler.InstanceHandler.2")
-                .transform(this::serverResponse);
+                .transform(instanceService::linodeServicesDeploySingleEngine)
+                .log("instances.handler.InstanceHandler.2");
     }
 
-    private Mono<ServerResponse> serverResponse(Mono<?> instanceMono) {
-        return ServerResponse.status(200).contentType(MediaType.APPLICATION_JSON).body(instanceMono, instanceMono.getClass()).log();
+    private Mono<ServerResponse> serverResponse(Mono<?> responseBody) {
+        return ServerResponse.status(200).contentType(MediaType.APPLICATION_JSON).body(responseBody, responseBody.getClass()).log();
     }
 
     private Mono<InstanceCreateRequest> bytesToObj(Mono<ByteBuf> buff) {

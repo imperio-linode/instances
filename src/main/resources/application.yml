@@ -1,8 +1,24 @@
 server:
   port: 80
-#  ssl:
-#    key-store: classpath:keystore.p12
-#    key-store-password: imperio
+
+infrastructure:
+  tls:
+    key-store-type: pkcs12
+    key-store: src/main/resources/keystore.p12
+    key-store-password: imperio
+    ca: src/main/resources/ca.p12
+    ca-password: imperio
+  instances:
+    host: https://gateway.imperio
+    service: imperio-gateway
+    port: 443
+  linode-services:
+    host: https://linodeservices.imperio
+    service: imperio-linode-services
+    port: 443
+  auth:
+    port: 8080
+
 spring:
   application:
     name: imperio-instances
