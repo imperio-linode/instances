@@ -9,6 +9,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
+import java.util.List;
 
 @Table(name = "instance")
 @JsonAutoDetect
@@ -17,50 +18,53 @@ import java.time.Instant;
 public class Instance {
     @Column("instance_id")
     @Id
-    private final Long id;
+    private Long id;
+    @Column("instance_region_id")
+    private String region;
     @Column("instance_alert_id")
-    private final Integer alert;
+    private Integer alert;
     @Column("instance_address_id")
-    private final Integer address;
+    private Integer address;
     @Column("instance_specs_id")
-    private final Integer spec;
+    private Integer spec;
     @Column("instance_backup_available")
-    private final Boolean available;
+    private Boolean available;
     @Column("instance_backup_enabled")
-    private final Boolean enabled;
+    private Boolean enabled;
     @Column("instance_backup_last_successful")
-    private final Instant last_successful;
+    private Instant last_successful;
     @Column("instance_backup_day")
-    private final Integer backup_day;
+    private Integer backup_day;
     @Column("instance_backup_window")
-    private final String window;
+    private String window;
     @Column("instance_created")
-    private final String created;
+    private String created;
     @Column("instance_group")
-    private final String group;
+    private String group;
     @Column("instance_host_uuid")
-    private final String host_uuid;
+    private String host_uuid;
     @Column("instance_hypervisor")
-    private final String hypervisor;
+    private String hypervisor;
     @Column("instance_image")
-    private final String image;
+    private String image;
     @Column("instance_label")
-    private final String label;
+    private String label;
     @Column("instance_status")
-    private final String status;
+    private String status;
     @Column("instance_tags")
-    private final String tags;
+    private List<String> tags;
     @Column("instance_type")
-    private final String type;
+    private String type;
     @Column("instance_updated")
-    private final String updated;
+    private String updated;
     @Column("instance_watchdog_enable")
-    private final Boolean watchdog_enabled;
+    private Boolean watchdog_enabled;
 
 
     @JsonCreator
-    public Instance(Long id, Integer alert, Integer address, Integer spec, Boolean available, Boolean enabled, Instant last_successful, Integer backup_day, String window, String created, String group, String host_uuid, String hypervisor, String image, String label, String status, String tags, String type, String updated, Boolean watchdog_enabled) {
+    public Instance(Long id, String region, Integer alert, Integer address, Integer spec, Boolean available, Boolean enabled, Instant last_successful, Integer backup_day, String window, String created, String group, String host_uuid, String hypervisor, String image, String label, String status, List<String> tags, String type, String updated, Boolean watchdog_enabled) {
         this.id = id;
+        this.region = region;
         this.alert = alert;
         this.address = address;
         this.spec = spec;
@@ -80,6 +84,9 @@ public class Instance {
         this.type = type;
         this.updated = updated;
         this.watchdog_enabled = watchdog_enabled;
+    }
+
+    public Instance() {
     }
 
     @Override

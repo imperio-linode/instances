@@ -1,21 +1,29 @@
 package com.bntech.imperio.instances.data.object;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.bntech.imperio.instances.data.object.types.InstanceRequestType;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record InstanceRequest(
-        String instanceName,
-        String instanceSize,
-        String region,
-        String sshKey
-) {
-    @JsonCreator
-    public InstanceRequest(@JsonProperty("userId") final String instanceName, final String instanceSize, final String region, final String sshKey) {
-        this.instanceName = instanceName;
-        this.instanceSize = instanceSize;
+@JsonAutoDetect
+@Getter
+@Setter
+@NoArgsConstructor
+public class InstanceRequest<T> {
+    private String type;
+    private String region;
+    private String label;
+    private InstanceRequestType requestType;
+
+    public InstanceRequest(String type, String region, String label, InstanceRequestType requestType) {
+        this.type = type;
         this.region = region;
-        this.sshKey = sshKey;
+        this.label = label;
+        this.requestType = requestType;
     }
 
+    public T requestDetails() {
+        return (T) this;
+    }
 }
-

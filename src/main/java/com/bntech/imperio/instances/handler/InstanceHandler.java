@@ -1,11 +1,12 @@
 package com.bntech.imperio.instances.handler;
 
 
-import com.bntech.imperio.instances.data.dto.InstanceDetailsDto;
-import com.bntech.imperio.instances.data.dto.InstanceDto;
-import com.bntech.imperio.instances.data.model.Instance;
+import com.bntech.imperio.instances.data.object.InstanceCreateRequest;
 import com.bntech.imperio.instances.data.object.InstanceResponse;
 import com.bntech.imperio.instances.service.InstanceService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -14,6 +15,10 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+
+import static io.netty.util.CharsetUtil.US_ASCII;
 
 
 @Slf4j
@@ -35,29 +40,38 @@ public class InstanceHandler {
     }
 
     public Mono<ServerResponse> instanceDetails(ServerRequest request) {
-        log.info("InstanceHandler path variable: {}", request.pathVariable("id"));
-
         return request.pathVariable("id")
                 .transform(Mono::just)
-                .log("com.bntech.long")
-                .transform(instanceService::vmDetails)
-
-//                .transform(instanceService::instanceToResponse)
-                .log("com.bntech.instance")
-                .transform(this::rawInstanceServerResponse);
-
+                .transform(instanceService::getInstanceDetails)
+                .map(dto -> new InstanceResponse(List.of(dto)))
+                .log("instances.handler.InstanceHandler.instanceDetails")
+                .transform(this::serverResponse)
+                .onErrorResume(errorHandler::throwableError);
     }
 
+    //todo: This should update db and send kafka message to linode-services that instance awaits creating. Can reply with ws after.
     public Mono<ServerResponse> addInstance(ServerRequest request) {
-        return Mono.empty();
+        return request.bodyToMono(ByteBuf.class)
+                .transform(this::bytesToObj)
+                .log("instances.handler.InstanceHandler.1")
+                .transform(instanceService::receiveNewInstanceRequest)
+                .log("instances.handler.InstanceHandler.2")
+                .transform(this::serverResponse);
     }
 
-    private Mono<ServerResponse> instanceServerResponse(Mono<InstanceResponse> instanceMono) {
-        return ServerResponse.ok().body(instanceMono, InstanceResponse.class);
+    private Mono<ServerResponse> serverResponse(Mono<?> instanceMono) {
+        return ServerResponse.status(200).contentType(MediaType.APPLICATION_JSON).body(instanceMono, instanceMono.getClass()).log();
     }
 
-    private Mono<ServerResponse> rawInstanceServerResponse(Mono<InstanceDetailsDto> instanceMono) {
-        return ServerResponse.ok().body(instanceMono, InstanceDetailsDto.class);
+    private Mono<InstanceCreateRequest> bytesToObj(Mono<ByteBuf> buff) {
+        return buff.map(b -> {
+            log.info("BUFF TO ICR: {}", b.toString(US_ASCII));
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                return mapper.readValue(b.toString(US_ASCII), InstanceCreateRequest.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }).onErrorStop();
     }
-
 }

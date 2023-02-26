@@ -1,9 +1,8 @@
 package com.bntech.imperio.instances.service;
 
-import com.bntech.imperio.instances.data.dto.InstanceDetailsDto;
-import com.bntech.imperio.instances.data.dto.InstanceDto;
+import com.bntech.imperio.instances.data.dto.UserDetailsResponseDto;
 import com.bntech.imperio.instances.data.model.Instance;
-import com.bntech.imperio.instances.data.object.InstanceRequest;
+import com.bntech.imperio.instances.data.object.InstanceCreateRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,15 +15,12 @@ public interface InstanceService {
      * @param vmId: id of deployed instance
      * @return Mono<Instance>
      */
-    Mono<Instance> vm(Mono<String> vmId);
+    Mono<Instance> getInstanceById(Mono<String> vmId);
 
-    Mono<InstanceDetailsDto> vmDetails(Mono<String> id);
+    Mono<UserDetailsResponseDto> getInstanceDetails(Mono<String> id);
 
-    Flux<Instance> makeVm(Flux<InstanceRequest> requestMono);
+    Mono<Instance> receiveNewInstanceRequest(Mono<InstanceCreateRequest> requestMono);
 
-    //start sending updates to front
     Flux<Instance> subscribeNewVmInfo(Flux<Instance> requestMono);
 
-
-    Mono<InstanceDto> instanceToResponse(Mono<Instance> instance);
 }

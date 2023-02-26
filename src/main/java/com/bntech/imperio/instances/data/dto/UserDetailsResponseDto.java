@@ -3,12 +3,13 @@ package com.bntech.imperio.instances.data.dto;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.Builder;
 
+import java.net.InetAddress;
 import java.time.Instant;
 import java.util.List;
 
 @Builder
 @JsonAutoDetect
-public record InstanceDto(
+public record UserDetailsResponseDto(
         InstanceAlerts alerts,
         InstanceBackups backups,
         String created,
@@ -17,8 +18,8 @@ public record InstanceDto(
         String hypervisor,
         Long id,
         String image,
-        List<String> ipv4,
-        String ipv6,
+        List<InetAddress> ipv4,
+        InetAddress ipv6,
         String label,
         InstanceSpecs specs,
         String status,
@@ -28,7 +29,7 @@ public record InstanceDto(
         Boolean watchdog_enabled
 ) {
 
-    public static InstanceDto toType (InstanceDto dto) {
+    public static UserDetailsResponseDto toType (UserDetailsResponseDto dto) {
         return dto;
     }
 

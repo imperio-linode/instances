@@ -1,4 +1,4 @@
-package com.bntech.imperio.instances.data.object;
+package com.bntech.imperio.instances.data.object.types;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

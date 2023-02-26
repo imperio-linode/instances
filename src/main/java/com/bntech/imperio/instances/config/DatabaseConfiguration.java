@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
+import static com.bntech.imperio.instances.config.Constants.SQL_SCHEMA;
+
 @Configuration
 @EnableR2dbcRepositories({"com.bntech.imperio.instances.data.model.repository"})
 @EnableTransactionManagement
@@ -46,7 +48,7 @@ public class DatabaseConfiguration {
 
     @Bean
     public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator(new ClassPathResource("schema.sql"));
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator(new ClassPathResource(SQL_SCHEMA));
         ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
         initializer.setConnectionFactory(connectionFactory);
         initializer.setDatabasePopulator(populator);
@@ -140,4 +142,5 @@ public class DatabaseConfiguration {
             return source != null ? Duration.ofMillis(source) : null;
         }
     }
+
 }

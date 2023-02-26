@@ -7,11 +7,12 @@ import lombok.Data;
 
 import java.net.InetAddress;
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @JsonAutoDetect
 @AllArgsConstructor
-public class InstanceDetailsDto {
+public class DatabaseInstanceDetailsDto {
     Integer instance_id;
     Integer instance_alert_id;
     Integer instance_address_id;
@@ -28,12 +29,12 @@ public class InstanceDetailsDto {
     String instance_image;
     String instance_label;
     String instance_status;
-    String instance_tags;
+    List<String> instance_tags;
     String instance_type;
     String instance_updated;
     Boolean instance_watchdog_enable;
     Integer i_ip_id;
-    InetAddress i_ip_v4;
+    List<InetAddress> i_ip_v4;
     InetAddress i_ip_v6;
     Integer i_alert_id;
     Integer i_alert_cpu;

@@ -28,8 +28,7 @@ public class ErrorHandler {
                         .body(Mono.just(new ErrorResponse(translation.getMessage())), ErrorResponse.class));
     }
 
-    Mono<ServerResponse> throwableError(final Throwable error) {
-        log.error("CATCHED");
+    public Mono<ServerResponse> throwableError(final Throwable error) {
         log.error(ERROR_RAISED, error);
         return Mono.just(error).transform(this::getResponse);
     }

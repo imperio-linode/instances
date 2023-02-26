@@ -24,7 +24,8 @@ create table region
 
 create table instance
 (
-    instance_id                     bigint not null primary key,
+    instance_id                     serial constraint id primary key,
+    instance_region_id              varchar(2),
     instance_alert_id               bigint,
     instance_address_id             bigint,
     instance_specs_id               bigint,
@@ -40,7 +41,7 @@ create table instance
     instance_image                  varchar(35),
     instance_label                  varchar(35),
     instance_status                 varchar(35),
-    instance_tags                   varchar(35),
+    instance_tags                   varchar(35)[],
     instance_type                   varchar(35),
     instance_updated                varchar(35),
     instance_watchdog_enable        bool
@@ -49,7 +50,7 @@ create table instance
 create table instance_address
 (
     i_ip_id bigint not null primary key,
-    i_ip_v4 inet,
+    i_ip_v4 inet[1],
     i_ip_v6 inet
 );
 
@@ -77,17 +78,17 @@ values (1, 'Michal', 'Cop', 'mcop', 'mcop', 'michalcop@bntech.dev', true);
 insert into auth_user (user_id, user_first_name, user_sure_name, user_name, user_password, user_email, user_isactive)
 values (2, 'Test', 'User', 'user', 'pass', 'poownijmy@gmail.com', true);
 
-insert into instance (instance_id, instance_alert_id, instance_address_id, instance_specs_id, instance_backup_available,
+insert into instance (instance_id, instance_region_id, instance_alert_id, instance_address_id, instance_specs_id, instance_backup_available,
                       instance_backup_enabled, instance_backup_last_successful, instance_backup_day,
                       instance_backup_window, instance_created, instance_group, instance_host_uuid, instance_hypervisor,
                       instance_image, instance_label, instance_status, instance_tags, instance_type, instance_updated,
                       instance_watchdog_enable)
-values (1, 1, 1, 1, false, false, '2004-10-19 10:23:54', 3, 'window', 'creted', 'group', 'host_uuid',
+values (0, 'us', 1, 1, 1, false, false, '2004-10-19 10:23:54', 3, 'window', 'creted', 'group', 'host_uuid',
         'hypervisor', 'image', 'label',
-        'status', '[tags, tags2]', 'type', 'updated', false);
+        'running', '{tags, tags2}', 'type', 'updated', false);
 
 insert into instance_address(i_ip_id, i_ip_v4, i_ip_v6)
-values (1, '192.168.0.1', '0000:0000:0000:0000:0000:ffff:c0a8:0001');
+values (1, '{192.168.0.1, 192.168.0.2}', '0000:0000:0000:0000:0000:ffff:c0a8:0001');
 
 insert into instance_alert (i_alert_id, i_alert_cpu, i_alert_io, i_alert_network_in, i_alert_network_out,
                             i_alert_transfer_quota)

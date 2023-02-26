@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Objects;

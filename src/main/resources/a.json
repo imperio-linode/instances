@@ -1,0 +1,48 @@
+{
+  "instance": [
+    {
+      "alerts": {
+        "cpu": 30,
+        "io": 30,
+        "network_in": 30,
+        "network_out": 30,
+        "transfer_quota": 30
+      },
+      "backups": {
+        "available": false,
+        "enabled": false,
+        "last_successful": null,
+        "schedule": {
+          "day": 3,
+          "window": "window"
+        }
+      },
+      "created": "creted",
+      "group": "group",
+      "host_uuid": "host_uuid",
+      "hypervisor": "hypervisor",
+      "id": 1,
+      "image": "image",
+      "ipv4": [
+        "192.168.0.1",
+        "192.168.0.2"
+      ],
+      "ipv6": "192.168.0.1",
+      "label": "label",
+      "specs": {
+        "disk": 2137,
+        "memory": 420,
+        "transfer": 10,
+        "vcpus": 10
+      },
+      "status": "status",
+      "tags": [
+        "tags",
+        "tags2"
+      ],
+      "type": "type",
+      "updated": "updated",
+      "watchdog_enabled": false
+    }
+  ]
+}

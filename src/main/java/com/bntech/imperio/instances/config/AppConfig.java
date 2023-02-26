@@ -9,8 +9,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.reactive.function.server.RouterFunction;
 
+import static com.bntech.imperio.instances.config.Constants.APP_PROPERTIES;
+
 @Configuration
-@PropertySource("classpath:application.yml")
+@PropertySource(APP_PROPERTIES)
 public class AppConfig {
 
     @Bean

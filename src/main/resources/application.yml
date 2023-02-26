@@ -1,5 +1,8 @@
 server:
-  port: 9001
+  port: 80
+#  ssl:
+#    key-store: classpath:keystore.p12
+#    key-store-password: imperio
 spring:
   application:
     name: imperio-instances
@@ -29,7 +32,7 @@ spring:
 
 management:
   server:
-    port: 9001
+    port: 80
     ssl:
       enabled: false
   endpoints:
