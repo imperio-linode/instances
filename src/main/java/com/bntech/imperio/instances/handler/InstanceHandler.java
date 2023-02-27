@@ -53,22 +53,26 @@ public class InstanceHandler {
     public Mono<ServerResponse> addInstance(ServerRequest request) {
         return request.bodyToMono(ByteBuf.class)
                 .transform(this::bytesToObj)
-                .log("instances.handler.InstanceHandler.1")
-                .transform(instanceService::receiveNewInstanceRequest)
-                .transform(instanceService::linodeServicesDeploySingleEngine)
-                .log("instances.handler.InstanceHandler.2");
+                .map(response -> {
+                    log.info("Response in addInstance: " + response.toInstance().getLabel());
+                    return response;
+                })
+                .transform(instanceService::receiveNewInstanceRequest);
     }
 
-    private Mono<ServerResponse> serverResponse(Mono<?> responseBody) {
-        return ServerResponse.status(200).contentType(MediaType.APPLICATION_JSON).body(responseBody, responseBody.getClass()).log();
+    private Mono<ServerResponse> serverResponse(Mono<?> mono) {
+        return ServerResponse.status(200).contentType(MediaType.APPLICATION_JSON).body(mono, mono.getClass()).log();
     }
 
     private Mono<InstanceCreateRequest> bytesToObj(Mono<ByteBuf> buff) {
         return buff.map(b -> {
-            log.info("BUFF TO ICR: {}", b.toString(US_ASCII));
+            log.info("instanceHandler byteToObj: {}", b.toString(US_ASCII));
             ObjectMapper mapper = new ObjectMapper();
             try {
-                return mapper.readValue(b.toString(US_ASCII), InstanceCreateRequest.class);
+                InstanceCreateRequest icr = mapper.readValue(b.toString(US_ASCII), InstanceCreateRequest.class);
+                log.info("Mapped icr: {}", icr.getLabel());
+                log.info("Mapped icr imnstance: {}", icr.toInstance().getLabel());
+                return icr;
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }

@@ -3,6 +3,7 @@ package com.bntech.imperio.instances.data.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
@@ -15,6 +16,7 @@ import java.util.List;
 @JsonAutoDetect
 @Getter
 @Setter
+@NoArgsConstructor
 public class Instance {
     @Column("instance_id")
     @Id
@@ -84,9 +86,6 @@ public class Instance {
         this.type = type;
         this.updated = updated;
         this.watchdog_enabled = watchdog_enabled;
-    }
-
-    public Instance() {
     }
 
     @Override
