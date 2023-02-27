@@ -63,7 +63,7 @@ public class InstanceServiceImpl implements InstanceService {
                 .transform(this::linodeServicesDeploySingleEngine);
     }
 
-    private Mono<ServerResponse> linodeServicesDeploySingleEngine(Mono<InstanceCreateRequest> instance) {
+    private Mono<ServerResponse> linodeServicesDeploySingleEngine(Mono<Instance> instance) {
         return instance.flatMap(details -> {
             log.info("Linode request outgoing label: " + details.getLabel());
 
@@ -102,7 +102,7 @@ public class InstanceServiceImpl implements InstanceService {
         });
     }
 
-    private Mono<InstanceCreateRequest> buildInstance(InstanceCreateRequest instanceDetails) {
+    private Mono<Instance> buildInstance(InstanceCreateRequest instanceDetails) {
         return switch (instanceDetails.getRequestType()) {
             //todo: There is a parse because we need diff requests for diff instances
             case regular -> createRegularInstance(instanceDetails);
@@ -111,18 +111,19 @@ public class InstanceServiceImpl implements InstanceService {
         };
     }
 
-    private Mono<InstanceCreateRequest> createRegularInstance(InstanceCreateRequest details) {
+    private Mono<Instance> createRegularInstance(InstanceCreateRequest details) {
         return instances
                 .save(details.toInstance())
                 .log("save.instanceRequest.toInstance")
-                .map(instance -> details);
+//                .map(instance -> details)
+                ;
     }
 
-    private Mono<InstanceCreateRequest> createKubeHostInstance(InstanceCreateRequest details) {
+    private Mono<Instance> createKubeHostInstance(InstanceCreateRequest details) {
         return null;
     }
 
-    private Mono<InstanceCreateRequest> createKubeWorkerInstance(InstanceCreateRequest details) {
+    private Mono<Instance> createKubeWorkerInstance(InstanceCreateRequest details) {
         return null;
     }
 
