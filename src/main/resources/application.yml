@@ -7,7 +7,7 @@ infrastructure:
     key-store: src/main/resources/keystore.p12
     key-store-password: imperio
     ca: src/main/resources/ca.p12
-    ca-password: imperio
+    ca-password: ${tls_pass}
   instances:
     host: https://gateway.imperio
     service: imperio-gateway
@@ -32,7 +32,7 @@ spring:
     url: r2dbc:postgres://10.43.230.146:5432/imperio
     name: imperio
     username: postgres
-    password: y3aFEnnH7e
+    password: ${pg_pass}
     pool:
       initial-size: 10
       enabled: false
