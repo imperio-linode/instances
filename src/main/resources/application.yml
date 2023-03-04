@@ -29,7 +29,7 @@ spring:
     hibernate:
       ddl-auto: create-drop
   r2dbc:
-    url: r2dbc:postgres://10.43.230.146:5432/imperio
+    url: r2dbc:postgres://${pg_ip}:5432/imperio
     name: imperio
     username: postgres
     password: ${pg_pass}

@@ -32,7 +32,7 @@ spec:
             - name: pg_user
               value: postgres
             - name: pg_ip
-              value: 10.43.146.241
+              value: POSTGRES_IP_SED
             - name: tls_pass
               valueFrom:
                 secretKeyRef:
