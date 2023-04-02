@@ -10,6 +10,8 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.List;
 
+import static com.bntech.imperio.instances.service.util.Util.commonRegions;
+
 @JsonAutoDetect
 @Getter
 @Setter
@@ -29,15 +31,27 @@ public class InstanceCreateRequest extends InstanceRequest<InstanceCreateRequest
     }
 
     public Instance toInstance() {
-        Instance i = new Instance();
-        i.setType(getType());
-        i.setCreated(Instant.now().toString());
-        i.setRegion(getRegion());
-        i.setLabel(getLabel());
-        i.setImage(getImage());
-        i.setGroup(getGroup());
-        i.setTags(List.of("", ""));
-
-        return i;
+        return Instance
+                .builder()
+                .region(commonRegions(getRegion()))
+                .alert(null)
+                .address(null)
+                .spec(null)
+                .available(false)
+                .enabled(false)
+                .last_successful(null)
+                .backup_day(null)
+                .window("")
+                .created(Instant.now().toString())
+                .group(getGroup())
+                .host_uuid("")
+                .hypervisor("")
+                .image(getImage())
+                .label(getLabel())
+                .status("Requesting")
+                .tags(List.of("", ""))
+                .type(getType())
+                .updated(Instant.now().toString())
+                .watchdog_enabled(false).build();
     }
 }

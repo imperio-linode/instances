@@ -5,7 +5,7 @@ infrastructure:
   tls:
     key-store-type: pkcs12
     key-store: src/main/resources/keystore.p12
-    key-store-password: imperio
+    key-store-password: ${tls_pass}
     ca: src/main/resources/ca.p12
     ca-password: ${tls_pass}
   instances:

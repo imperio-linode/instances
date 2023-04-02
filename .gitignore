@@ -7,7 +7,7 @@ target/
 **/keystore.p12
 **/imperio.crt
 **/imperio.key
-
+imperio-instances.yaml
 ### STS ###
 .apt_generated
 .classpath

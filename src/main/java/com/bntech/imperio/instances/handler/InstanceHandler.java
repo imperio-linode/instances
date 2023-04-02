@@ -50,14 +50,14 @@ public class InstanceHandler {
     }
 
     //todo: This should update db and send kafka message to linode-services that instance awaits creating. Can reply with ws after.
-    public Mono<ServerResponse> addInstance(ServerRequest request) {
+    public Mono<ServerResponse> newDeployment(ServerRequest request) {
         return request.bodyToMono(ByteBuf.class)
                 .transform(this::bytesToObj)
                 .map(response -> {
                     log.info("Response in addInstance: " + response.toInstance().getLabel());
                     return response;
                 })
-                .transform(instanceService::receiveNewInstanceRequest);
+                .transform(instanceService::newDeployment);
     }
 
     private Mono<ServerResponse> serverResponse(Mono<?> mono) {

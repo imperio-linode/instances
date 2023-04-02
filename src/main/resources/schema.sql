@@ -18,14 +18,15 @@ create table auth_user
 
 create table region
 (
-    region_id   varchar(2) not null primary key,
-    region_name varchar(20)
+    region_id   varchar(5) not null primary key,
+    linode_name varchar(20),
+    full_name varchar(40)
 );
 
 create table instance
 (
     instance_id                     serial constraint id primary key,
-    instance_region_id              varchar(2),
+    instance_region_id              varchar(5),
     instance_alert_id               bigint,
     instance_address_id             bigint,
     instance_specs_id               bigint,
@@ -98,5 +99,5 @@ insert into instance_spec (i_spec_id, i_spec_disk, i_spec_memory, i_spec_transfe
 values (1, 2137, 420, 10, 10);
 
 
-insert into region(region_id, region_name)
-values ('us', 'United States')
+insert into region(region_id, linode_name, full_name)
+values ('us-e', 'us-east', 'United States East')

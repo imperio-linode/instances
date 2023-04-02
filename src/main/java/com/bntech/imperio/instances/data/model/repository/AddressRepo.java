@@ -13,5 +13,4 @@ public interface AddressRepo extends ReactiveCrudRepository<InstanceAddress, Int
 
     @Query("select * from instance_address where i_ip_id = :ipId")
     List<InstanceAddress> getAllByIpId(Integer ipId);
-
 }
