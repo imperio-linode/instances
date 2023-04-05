@@ -64,16 +64,16 @@ public class InstanceHandler {
     }
 
     private Mono<InstanceCreateRequest> bytesToObj(Mono<ByteBuf> buff) {
-        return buff.map(b -> {
+        return buff.<InstanceCreateRequest>handle((b, sink) -> {
             log.info("instanceHandler byteToObj: {}", b.toString(US_ASCII));
             ObjectMapper mapper = new ObjectMapper();
             try {
                 InstanceCreateRequest icr = mapper.readValue(b.toString(US_ASCII), InstanceCreateRequest.class);
                 log.info("Mapped icr: {}", icr.getLabel());
-                log.info("Mapped icr imnstance: {}", icr.toInstance().getLabel());
-                return icr;
+                log.info("Mapped icr instance: {}", icr.toInstance().getLabel());
+                sink.next(icr);
             } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+                sink.error(new RuntimeException(e));
             }
         }).onErrorStop();
     }
