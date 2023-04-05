@@ -49,12 +49,11 @@ public class InstanceHandler {
                 .onErrorResume(errorHandler::throwableError);
     }
 
-    //todo: This should update db and send kafka message to linode-services that instance awaits creating. Can reply with ws after.
     public Mono<ServerResponse> newDeployment(ServerRequest request) {
         return request.bodyToMono(ByteBuf.class)
                 .transform(this::bytesToObj)
                 .map(response -> {
-                    log.info("Response in addInstance: " + response.toInstance().getLabel());
+                    log.info("Response in addInstance: " + response.getRootPass());
                     return response;
                 })
                 .transform(instanceService::newDeployment);

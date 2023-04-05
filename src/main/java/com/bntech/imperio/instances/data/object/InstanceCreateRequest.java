@@ -2,7 +2,9 @@ package com.bntech.imperio.instances.data.object;
 
 import com.bntech.imperio.instances.data.model.Instance;
 import com.bntech.imperio.instances.data.object.types.InstanceRequestType;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,23 +14,18 @@ import java.util.List;
 
 import static com.bntech.imperio.instances.service.util.Util.commonRegions;
 
-@JsonAutoDetect
 @Getter
 @Setter
 @NoArgsConstructor
 public class InstanceCreateRequest extends InstanceRequest<InstanceCreateRequest> {
     private String image;
     private String group;
+    @JsonAlias("authorized_keys")
     private List<String> authorizedKeys;
+    @JsonAlias("root_pass")
     private String rootPass;
-
-    public InstanceCreateRequest(String type, String region, String label, InstanceRequestType requestType, String image, String group, List<String> authorizedKeys, String rootPass) {
-        super(type, region, label, requestType);
-        this.image = image;
-        this.group = group;
-        this.authorizedKeys = authorizedKeys;
-        this.rootPass = rootPass;
-    }
+    @JsonAlias("request_type")
+    private InstanceRequestType requestType;
 
     public Instance toInstance() {
         return Instance
