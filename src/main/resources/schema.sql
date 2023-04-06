@@ -20,12 +20,13 @@ create table region
 (
     region_id   varchar(5) not null primary key,
     linode_name varchar(20),
-    full_name varchar(40)
+    full_name   varchar(40)
 );
 
 create table instance
 (
-    instance_id                     serial constraint id primary key,
+    instance_id                     serial
+        constraint id primary key,
     instance_region_id              varchar(5),
     instance_alert_id               bigint,
     instance_address_id             bigint,
@@ -67,11 +68,13 @@ create table instance_alert
 
 create table instance_spec
 (
-    i_spec_id              bigint not null primary key,
-    i_spec_disk            integer,
-    i_spec_memory          integer,
-    i_spec_transfer        integer,
-    i_spec_vcpu            integer
+    i_spec_id       bigint not null primary key,
+    i_spec_disk     integer,
+    i_spec_memory   integer,
+    i_spec_vcpu     integer,
+    i_spec_gpus     integer,
+    i_spec_transfer integer
+
 );
 
 insert into auth_user (user_id, user_first_name, user_sure_name, user_name, user_password, user_email, user_isactive)
@@ -79,7 +82,8 @@ values (1, 'Michal', 'Cop', 'mcop', 'mcop', 'michalcop@bntech.dev', true);
 insert into auth_user (user_id, user_first_name, user_sure_name, user_name, user_password, user_email, user_isactive)
 values (2, 'Test', 'User', 'user', 'pass', 'poownijmy@gmail.com', true);
 
-insert into instance (instance_id, instance_region_id, instance_alert_id, instance_address_id, instance_specs_id, instance_backup_available,
+insert into instance (instance_id, instance_region_id, instance_alert_id, instance_address_id, instance_specs_id,
+                      instance_backup_available,
                       instance_backup_enabled, instance_backup_last_successful, instance_backup_day,
                       instance_backup_window, instance_created, instance_group, instance_host_uuid, instance_hypervisor,
                       instance_image, instance_label, instance_status, instance_tags, instance_type, instance_updated,
@@ -95,8 +99,8 @@ insert into instance_alert (i_alert_id, i_alert_cpu, i_alert_io, i_alert_network
                             i_alert_transfer_quota)
 values (1, 30, 30, 30, 30, 30);
 
-insert into instance_spec (i_spec_id, i_spec_disk, i_spec_memory, i_spec_transfer, i_spec_vcpu)
-values (1, 2137, 420, 10, 10);
+insert into instance_spec (i_spec_id, i_spec_disk, i_spec_memory, i_spec_transfer, i_spec_vcpu, i_spec_gpus)
+values (1, 2137, 420, 10, 10, 3);
 
 
 insert into region(region_id, linode_name, full_name)

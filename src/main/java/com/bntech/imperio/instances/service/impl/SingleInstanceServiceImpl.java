@@ -12,6 +12,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,11 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClient;
+
+import java.util.Objects;
+import java.util.function.Function;
 
 import static com.bntech.imperio.instances.config.Constants.api_CREATE_ENGINE;
 import static io.netty.util.CharsetUtil.US_ASCII;
@@ -30,10 +35,12 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
     private final InstanceRepo instances;
     private final HttpClient linodeServices;
     private final ObjectMapper mapper;
+    private final TaskExecutor taskExecutor;
 
     @Autowired
-    public SingleInstanceServiceImpl(InstanceRepo instances, HttpClient tlsClient, @Value("${infrastructure.linode-services.host}") String instancesHost) {
+    public SingleInstanceServiceImpl(InstanceRepo instances, HttpClient tlsClient, @Value("${infrastructure.linode-services.host}") String instancesHost, TaskExecutor taskExecutor) {
         this.instances = instances;
+        this.taskExecutor = taskExecutor;
         this.linodeServices = tlsClient.baseUrl(instancesHost);
         this.mapper = new ObjectMapper();
     }
@@ -41,13 +48,19 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
     @Override
     public Mono<ServerResponse> deploy(InstanceCreateRequest instanceDetails) {
 //        todo: add cache to keep/delete from db after failed request.
-        return createRegularInstance(instanceDetails)
-                .transform(this::linodeServicesDeploySingleEngine);
+        return linodeServicesDeploySingleEngine(Mono.just(instanceDetails))
+                .onErrorResume(ex -> {
+                    if (ex instanceof ServerWebInputException swie) {
+                        return ServerResponse.status(swie.getStatusCode()).body(BodyInserters.fromValue(Objects.requireNonNull(swie.getReason())));
+                    }
+                    return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BodyInserters.fromValue(ex.getMessage()));
+                });
     }
 
-    Mono<ServerResponse> linodeServicesDeploySingleEngine(Mono<Instance> instance) {
+    Mono<ServerResponse> linodeServicesDeploySingleEngine(Mono<InstanceCreateRequest> instance) {
         return instance.flatMap(details -> {
-            log.info("Linode request outgoing label: " + details.getLabel());
+
+
 
             try {
                 log.info("instanceService req: {}", Unpooled.wrappedBuffer(mapper.writeValueAsBytes(details)).toString(US_ASCII));
@@ -64,9 +77,14 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
                         )
                         .log("service.impl.instanceService.linodeServicesDeploySingleEngine.1")
                         .transform(Util::stringServerResponse)
+                        .flatMap(response -> {
+                            Instance i = details.toInstance();
+                            return Mono.fromCallable(() -> instances.save(i))
+                                    .publishOn(Schedulers.fromExecutor(taskExecutor))
+                                    .then(Mono.just(response));
+                        })
                         .onErrorResume(ex -> {
-                            if (ex instanceof ServerWebInputException) {
-                                ServerWebInputException swie = (ServerWebInputException) ex;
+                            if (ex instanceof ServerWebInputException swie) {
                                 return ServerResponse.badRequest().body(BodyInserters.fromValue(swie.getMessage()));
                             } else {
                                 return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -82,9 +100,9 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
     }
 
     private Mono<Instance> createRegularInstance(InstanceCreateRequest details) {
-        return instances
-                .save(details.toInstance())
-                .log("save.instanceRequest.toInstance");
+        return Mono.fromCallable(() -> instances.save(details.toInstance()))
+                .publishOn(Schedulers.fromExecutor(taskExecutor)) 
+                .flatMap(Function.identity());
     }
 
 }

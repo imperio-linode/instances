@@ -17,7 +17,6 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync
 @EnableScheduling
-@Profile("!testdev & !testprod")
 @Slf4j
 public class AsyncConfiguration implements AsyncConfigurer {
 

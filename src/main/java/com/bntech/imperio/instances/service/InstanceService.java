@@ -12,4 +12,6 @@ public interface InstanceService {
     Mono<UserDetailsResponseDto> getInstanceDetails(Mono<String> id);
 
     Mono<ServerResponse> newDeployment(Mono<InstanceCreateRequest> requestMono);
+
+    Mono<ServerResponse> updateInstances();
 }

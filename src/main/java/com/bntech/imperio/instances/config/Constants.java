@@ -16,7 +16,12 @@ public final class Constants {
     public static final String api_HELLO = "/hello";
     public static final String api_ID = "/one/{id}";
     public static final String api_ADD = "/add";
-    public static final String api_CREATE_ENGINE = "/add-engine";
+    public static final String api_CREATE_ENGINE = "/engine/add";
+    public static final String api_UPDATE_ENGINES = "/engine/update";
+
+
+    public static final String api_LINODE_INSTANCE = "/linode/instances";
+
 
     public static final String param_ID = "id";
 

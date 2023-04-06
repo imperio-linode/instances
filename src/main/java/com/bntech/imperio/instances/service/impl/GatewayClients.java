@@ -62,4 +62,9 @@ public class GatewayClients {
             }
         });
     }
+
+    @Bean
+    public HttpClient httpClient() {
+        return HttpClient.create();
+    }
 }

@@ -44,7 +44,6 @@ public class InstanceHandler {
                 .transform(Mono::just)
                 .transform(instanceService::getInstanceDetails)
                 .map(dto -> new InstanceResponse(List.of(dto)))
-                .log("instances.handler.InstanceHandler.instanceDetails")
                 .transform(this::serverResponse)
                 .onErrorResume(errorHandler::throwableError);
     }
@@ -54,9 +53,14 @@ public class InstanceHandler {
                 .transform(this::bytesToObj)
                 .map(response -> {
                     log.info("Response in addInstance: " + response.getRootPass());
+
                     return response;
                 })
                 .transform(instanceService::newDeployment);
+    }
+
+    public Mono<ServerResponse> update(ServerRequest request) {
+        return instanceService.updateInstances();
     }
 
     private Mono<ServerResponse> serverResponse(Mono<?> mono) {
@@ -65,12 +69,9 @@ public class InstanceHandler {
 
     private Mono<InstanceCreateRequest> bytesToObj(Mono<ByteBuf> buff) {
         return buff.<InstanceCreateRequest>handle((b, sink) -> {
-            log.info("instanceHandler byteToObj: {}", b.toString(US_ASCII));
             ObjectMapper mapper = new ObjectMapper();
             try {
                 InstanceCreateRequest icr = mapper.readValue(b.toString(US_ASCII), InstanceCreateRequest.class);
-                log.info("Mapped icr: {}", icr.getLabel());
-                log.info("Mapped icr instance: {}", icr.toInstance().getLabel());
                 sink.next(icr);
             } catch (JsonProcessingException e) {
                 sink.error(new RuntimeException(e));

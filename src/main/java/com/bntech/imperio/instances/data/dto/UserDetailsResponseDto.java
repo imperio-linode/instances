@@ -19,14 +19,15 @@ public record UserDetailsResponseDto(
         Long id,
         String image,
         List<InetAddress> ipv4,
-        InetAddress ipv6,
+        String ipv6,
         String label,
         InstanceSpecs specs,
         String status,
         List<String> tags,
         String type,
         String updated,
-        Boolean watchdog_enabled
+        Boolean watchdog_enabled,
+        String region
 ) {
 
     public static UserDetailsResponseDto toType (UserDetailsResponseDto dto) {
@@ -67,8 +68,10 @@ public record UserDetailsResponseDto(
     public record InstanceSpecs(
             Integer disk,
             Integer memory,
-            Integer transfer,
-            Integer vcpus
+            Integer vcpus,
+            Integer gpus,
+            Integer transfer
+
     ) {
     }
 }

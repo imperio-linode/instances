@@ -21,14 +21,9 @@ public class Util {
     }
 
     public static String commonRegions(String location) {
-        Map<String, String> commonRegions = Map.of("us-east", "us-e", "us-west", "us-we");
+        Map<String, String> commonRegions = Map.of("us-east", "us-e", "us-west", "us-w");
 
-        if (!commonRegions.get(location).isEmpty()) {
-            return commonRegions.get(location);
-        } else {
-            //todo: repo search
-            return commonRegions.get(location);
-        }
+        return commonRegions.get(location);
 
     }
 }

@@ -47,4 +47,5 @@ public class DatabaseInstanceDetailsDto {
     Integer i_spec_memory;
     Integer i_spec_transfer;
     Integer i_spec_vcpu;
+    String i_region_id;
 }
