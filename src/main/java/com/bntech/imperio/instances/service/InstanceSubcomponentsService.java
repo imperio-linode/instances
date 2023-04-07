@@ -1,10 +1,7 @@
 package com.bntech.imperio.instances.service;
 
 import com.bntech.imperio.instances.data.dto.InstanceLinodeReplyDto;
-import com.bntech.imperio.instances.data.model.InstanceAddress;
-import com.bntech.imperio.instances.data.model.InstanceAlert;
-import com.bntech.imperio.instances.data.model.InstanceRegion;
-import com.bntech.imperio.instances.data.model.InstanceSpec;
+import com.bntech.imperio.instances.data.model.*;
 import com.bntech.imperio.instances.data.model.repository.InstanceAddressRepo;
 import com.bntech.imperio.instances.data.model.repository.InstanceAlertRepo;
 import com.bntech.imperio.instances.data.model.repository.InstanceSpecRepo;
@@ -12,6 +9,7 @@ import com.bntech.imperio.instances.data.model.repository.RegionRepo;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple4;
+import reactor.util.function.Tuple5;
 
 import java.net.Inet6Address;
 import java.net.UnknownHostException;
@@ -23,10 +21,14 @@ public interface InstanceSubcomponentsService {
 
     Mono<Tuple4<InstanceRegion, InstanceAlert, InstanceAddress, InstanceSpec>> createAll(InstanceLinodeReplyDto dto) throws UnknownHostException;
 
+    Mono<Tuple5<Instance, InstanceRegion, InstanceAlert, InstanceAddress, InstanceSpec>> fetchSubcomponents(Instance instance);
+
     Mono<InstanceAlert> getAlertById(Mono<Integer> id);
     Mono<InstanceRegion> getRegionById(String id);
     Mono<InstanceAddress> getAddressById(Mono<Integer> id);
     Mono<InstanceSpec> getSpecById(Mono<Integer> id);
+
+
 
     static Mono<InstanceAlert> createNewAlert(InstanceLinodeReplyDto dto, InstanceAlertRepo alerts) {
         InstanceAlert newAlert = InstanceAlert.builder()

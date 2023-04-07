@@ -62,17 +62,18 @@ public class InstanceServiceImpl implements InstanceService {
                 .flatMap(dto -> {
                     try {
                         return instances.getById(Mono.just(dto.id()))
-                                .flatMap(existingInstance -> Mono.zip(
-                                        subcomponentsService.getAlertById(Mono.just(existingInstance.getAlert())),
-                                        subcomponentsService.getRegionById(existingInstance.getRegion()),
-                                        subcomponentsService.getSpecById(Mono.just(existingInstance.getSpec()))
-                                                .flatMap(tuple -> {
-                                                    Instance updatedInstance = Instance.builder()
+                                .flatMap(subcomponentsService::fetchSubcomponents)
+                                .flatMap(tuple -> {
+                                    Instance updatedInstance = Instance.builder()
 
-                                                            .build();
-                                                    return instances.update(updatedInstance);
-                                                })))
-                                .switchIfEmpty(createNewInstance(dto));
+                                            .build();
+                                    return instances.update(updatedInstance);
+                                })
+                                .switchIfEmpty(createNewInstance(dto))
+                                .onErrorResume(e -> {
+                                    log.error("Error while upserting instance: {}", dto.id(), e);
+                                    return Mono.empty();
+                                });
                     } catch (UnknownHostException e) {
                         return Flux.error(new RuntimeException(e));
                     }
