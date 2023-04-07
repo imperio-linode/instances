@@ -23,7 +23,7 @@ public class Instance {
     @Column("instance_id")
     @Id
     private Long id;
-    @Column("instance_region_id")
+    @Column("instance_region")
     private String region;
     @Column("instance_alert_id")
     private Integer alert;

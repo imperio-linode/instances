@@ -47,5 +47,5 @@ public class InstanceDetailsDbQueryDto {
     Integer i_spec_memory;
     Integer i_spec_transfer;
     Integer i_spec_vcpu;
-    String i_region_id;
+    String instance_region;
 }

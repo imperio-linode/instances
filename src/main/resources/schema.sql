@@ -1,5 +1,4 @@
 drop table if exists auth_user;
-drop table if exists instanceRegion;
 drop table if exists instance;
 drop table if exists instance_address;
 drop table if exists instance_alert;
@@ -16,18 +15,11 @@ create table auth_user
     user_isActive   bool
 );
 
-create table instanceRegion
-(
-    region_id   varchar(5) not null primary key,
-    linode_name varchar(20),
-    full_name   varchar(40)
-);
-
 create table instance
 (
     instance_id                     serial
         constraint id primary key,
-    instance_region_id              varchar(5),
+    instance_region                 varchar(5),
     instance_alert_id               bigint,
     instance_address_id             bigint,
     instance_specs_id               bigint,
@@ -82,13 +74,13 @@ values (1, 'Michal', 'Cop', 'mcop', 'mcop', 'michalcop@bntech.dev', true);
 insert into auth_user (user_id, user_first_name, user_sure_name, user_name, user_password, user_email, user_isactive)
 values (2, 'Test', 'User', 'user', 'pass', 'poownijmy@gmail.com', true);
 
-insert into instance (instance_id, instance_region_id, instance_alert_id, instance_address_id, instance_specs_id,
+insert into instance (instance_id, instance_alert_id, instance_address_id, instance_specs_id,
                       instance_backup_available,
                       instance_backup_enabled, instance_backup_last_successful, instance_backup_day,
                       instance_backup_window, instance_created, instance_group, instance_host_uuid, instance_hypervisor,
                       instance_image, instance_label, instance_status, instance_tags, instance_type, instance_updated,
                       instance_watchdog_enable)
-values (0, 'us', 1, 1, 1, false, false, '2004-10-19 10:23:54', 3, 'window', 'creted', 'group', 'host_uuid',
+values (0, 1, 1, 1, false, false, '2004-10-19 10:23:54', 3, 'window', 'creted', 'group', 'host_uuid',
         'hypervisor', 'image', 'label',
         'running', '{tags, tags2}', 'type', 'updated', false);
 
@@ -101,7 +93,3 @@ values (1, 30, 30, 30, 30, 30);
 
 insert into instance_spec (i_spec_id, i_spec_disk, i_spec_memory, i_spec_transfer, i_spec_vcpu, i_spec_gpus)
 values (1, 2137, 420, 10, 10, 3);
-
-
-insert into instanceRegion(region_id, linode_name, full_name)
-values ('us-e', 'us-east', 'United States East')

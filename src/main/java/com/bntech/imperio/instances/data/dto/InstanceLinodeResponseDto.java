@@ -11,7 +11,7 @@ import java.util.List;
 
 @Builder
 @JsonAutoDetect
-public record InstanceLinodeReplyDto(
+public record InstanceLinodeResponseDto(
         InstanceLinodeReplyAlertDto alerts,
         InstanceLinodeReplyBackupDto backups,
         String created,
@@ -41,16 +41,6 @@ public record InstanceLinodeReplyDto(
             Integer network_out,
             Integer transfer_quota
     ) {
-        public InstanceAlert toModel() {
-            return new InstanceAlert(
-                    null,
-                    cpu,
-                    io,
-                    network_in,
-                    network_out,
-                    transfer_quota
-            );
-        }
     }
 
     @Builder
@@ -80,16 +70,6 @@ public record InstanceLinodeReplyDto(
             Integer gpus,
             Integer transfer
     ) {
-
-        public InstanceSpec toModel() {
-            return new InstanceSpec(
-                    null,
-                    vcpus,
-                    memory,
-                    disk,
-                    transfer
-            );
-        }
     }
 }
 

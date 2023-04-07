@@ -22,7 +22,7 @@ public class DataRouter {
                 route(GET(api_ID),
                         instanceHandler::instanceDetails
                 ).andRoute(POST(api_ADD),
-                        instanceHandler::newDeployment
+                        instanceHandler::handleDeploy
                 ).andRoute(GET(api_HELLO), instanceHandler::hello
                 ).andRoute(GET(api_UPDATE_ENGINES), instanceHandler::update);
     }

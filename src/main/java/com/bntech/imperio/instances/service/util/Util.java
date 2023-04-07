@@ -19,10 +19,4 @@ public class Util {
                 });
     }
 
-    public static String commonRegions(String location) {
-        Map<String, String> commonRegions = Map.of("us-east", "us-e", "us-west", "us-w", "us-southeast", "us-se");
-
-        return commonRegions.get(location);
-
-    }
 }

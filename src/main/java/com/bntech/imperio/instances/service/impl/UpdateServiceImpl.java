@@ -53,7 +53,7 @@ public class UpdateServiceImpl implements UpdateService {
                         LinodeInstanceResponse res = mapper.readValue(req, LinodeInstanceResponse.class);
                         //until here correct
                         return instanceService
-                                .upsertAll(res.getData())
+                                .handleUpsert(res.getData())
                                 .doOnNext(savedInstances -> log.info("Saved instances: {}", savedInstances))
                                 .then(Mono.just(req));
                     } catch (JsonProcessingException e) {

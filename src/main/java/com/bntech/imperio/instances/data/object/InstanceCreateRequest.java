@@ -3,8 +3,6 @@ package com.bntech.imperio.instances.data.object;
 import com.bntech.imperio.instances.data.model.Instance;
 import com.bntech.imperio.instances.data.object.types.InstanceRequestType;
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +10,6 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.List;
 
-import static com.bntech.imperio.instances.service.util.Util.commonRegions;
 
 @Getter
 @Setter
@@ -30,7 +27,7 @@ public class InstanceCreateRequest extends InstanceRequest<InstanceCreateRequest
     public Instance toInstance() {
         return Instance
                 .builder()
-                .region(commonRegions(getRegion()))
+                .region(getRegion())
                 .alert(null)
                 .address(null)
                 .spec(null)

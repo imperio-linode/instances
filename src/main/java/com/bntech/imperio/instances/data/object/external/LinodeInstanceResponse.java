@@ -1,6 +1,6 @@
 package com.bntech.imperio.instances.data.object.external;
 
-import com.bntech.imperio.instances.data.dto.InstanceLinodeReplyDto;
+import com.bntech.imperio.instances.data.dto.InstanceLinodeResponseDto;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.*;
 
@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LinodeInstanceResponse {
-    private List<InstanceLinodeReplyDto> data;
+    private List<InstanceLinodeResponseDto> data;
     private Integer page;
     private Integer pages;
     private Integer results;

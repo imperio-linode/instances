@@ -53,7 +53,7 @@ public class InstanceHandler {
                 .onErrorResume(errorHandler::throwableError);
     }
 
-    public Mono<ServerResponse> newDeployment(ServerRequest request) {
+    public Mono<ServerResponse> handleDeploy(ServerRequest request) {
         return request.bodyToMono(ByteBuf.class)
                 .transform(this::bytesToObj)
                 .map(response -> {
@@ -61,7 +61,7 @@ public class InstanceHandler {
 
                     return response;
                 })
-                .transform(instanceService::newDeployment);
+                .transform(instanceService::initDeployment);
     }
 
     public Mono<ServerResponse> update(ServerRequest request) {
