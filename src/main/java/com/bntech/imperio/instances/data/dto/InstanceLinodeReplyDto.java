@@ -1,5 +1,7 @@
 package com.bntech.imperio.instances.data.dto;
 
+import com.bntech.imperio.instances.data.model.InstanceAlert;
+import com.bntech.imperio.instances.data.model.InstanceSpec;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.Builder;
 
@@ -9,9 +11,9 @@ import java.util.List;
 
 @Builder
 @JsonAutoDetect
-public record UserDetailsResponseDto(
-        InstanceAlerts alerts,
-        InstanceBackups backups,
+public record InstanceLinodeReplyDto(
+        InstanceLinodeReplyAlertDto alerts,
+        InstanceLinodeReplyBackupDto backups,
         String created,
         String group,
         String host_uuid,
@@ -21,7 +23,7 @@ public record UserDetailsResponseDto(
         List<InetAddress> ipv4,
         String ipv6,
         String label,
-        InstanceSpecs specs,
+        InstanceLinodeReplySpecsDto specs,
         String status,
         List<String> tags,
         String type,
@@ -30,34 +32,40 @@ public record UserDetailsResponseDto(
         String region
 ) {
 
-    public static UserDetailsResponseDto toType (UserDetailsResponseDto dto) {
-        return dto;
-    }
-
     @Builder
     @JsonAutoDetect
-    public record InstanceAlerts(
+    public record InstanceLinodeReplyAlertDto(
             Integer cpu,
             Integer io,
             Integer network_in,
             Integer network_out,
             Integer transfer_quota
     ) {
+        public InstanceAlert toModel() {
+            return new InstanceAlert(
+                    null,
+                    cpu,
+                    io,
+                    network_in,
+                    network_out,
+                    transfer_quota
+            );
+        }
     }
 
     @Builder
     @JsonAutoDetect
-    public record InstanceBackups(
+    public record InstanceLinodeReplyBackupDto(
             Boolean available,
             Boolean enabled,
             Instant last_successful,
-            InstanceBackupSchedule schedule
+            InstanceLinodeReplyBackupScheduleDto schedule
     ) {
     }
 
     @Builder
     @JsonAutoDetect
-    public record InstanceBackupSchedule(
+    public record InstanceLinodeReplyBackupScheduleDto(
             Integer day,
             String window
     ) {
@@ -65,14 +73,23 @@ public record UserDetailsResponseDto(
 
     @Builder
     @JsonAutoDetect
-    public record InstanceSpecs(
+    public record InstanceLinodeReplySpecsDto(
             Integer disk,
             Integer memory,
             Integer vcpus,
             Integer gpus,
             Integer transfer
-
     ) {
+
+        public InstanceSpec toModel() {
+            return new InstanceSpec(
+                    null,
+                    vcpus,
+                    memory,
+                    disk,
+                    transfer
+            );
+        }
     }
 }
 

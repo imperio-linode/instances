@@ -4,6 +4,9 @@ package com.bntech.imperio.instances.handler;
 import com.bntech.imperio.instances.data.object.InstanceCreateRequest;
 import com.bntech.imperio.instances.data.object.InstanceResponse;
 import com.bntech.imperio.instances.service.InstanceService;
+import com.bntech.imperio.instances.service.UpdateService;
+import com.bntech.imperio.instances.service.impl.UpdateServiceImpl;
+import com.bntech.imperio.instances.service.util.Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBuf;
@@ -27,11 +30,13 @@ public class InstanceHandler {
 
     final private InstanceService instanceService;
     final private ErrorHandler errorHandler;
+    private final UpdateService updater;
 
     @Autowired
-    public InstanceHandler(InstanceService instanceService, final ErrorHandler errorHandler) {
+    public InstanceHandler(InstanceService instanceService, final ErrorHandler errorHandler, UpdateServiceImpl updater) {
         this.instanceService = instanceService;
         this.errorHandler = errorHandler;
+        this.updater = updater;
     }
 
     public Mono<ServerResponse> hello(ServerRequest request) {
@@ -60,7 +65,8 @@ public class InstanceHandler {
     }
 
     public Mono<ServerResponse> update(ServerRequest request) {
-        return instanceService.updateInstances();
+        return updater.upsertInstances().log()
+                .transform(Util::stringServerResponse);
     }
 
     private Mono<ServerResponse> serverResponse(Mono<?> mono) {

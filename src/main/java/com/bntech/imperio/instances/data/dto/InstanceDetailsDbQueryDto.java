@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @JsonAutoDetect
 @AllArgsConstructor
-public class DatabaseInstanceDetailsDto {
+public class InstanceDetailsDbQueryDto {
     Integer instance_id;
     Integer instance_alert_id;
     Integer instance_address_id;

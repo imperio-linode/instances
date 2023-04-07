@@ -59,9 +59,6 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
 
     Mono<ServerResponse> linodeServicesDeploySingleEngine(Mono<InstanceCreateRequest> instance) {
         return instance.flatMap(details -> {
-
-
-
             try {
                 log.info("instanceService req: {}", Unpooled.wrappedBuffer(mapper.writeValueAsBytes(details)).toString(US_ASCII));
                 return linodeServices
@@ -98,11 +95,4 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
             }
         });
     }
-
-    private Mono<Instance> createRegularInstance(InstanceCreateRequest details) {
-        return Mono.fromCallable(() -> instances.save(details.toInstance()))
-                .publishOn(Schedulers.fromExecutor(taskExecutor)) 
-                .flatMap(Function.identity());
-    }
-
 }

@@ -1,6 +1,6 @@
 package com.bntech.imperio.instances.data.model.repository;
 
-import com.bntech.imperio.instances.data.dto.DatabaseInstanceDetailsDto;
+import com.bntech.imperio.instances.data.dto.InstanceDetailsDbQueryDto;
 import com.bntech.imperio.instances.data.model.Instance;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
@@ -16,5 +16,5 @@ public interface InstanceRepo extends ReactiveCrudRepository<Instance, Long> {
     Mono<Instance> getById(Mono<Long> id);
 
     @Query("select * from instance i inner join instance_address ad on i.instance_address_id = ad.i_ip_id inner join instance_alert al on i.instance_alert_id = al.i_alert_id inner join instance_spec s on i.instance_specs_id = s.i_spec_id where i.instance_id = :id;")
-    Mono<DatabaseInstanceDetailsDto> details(Mono<Long> id);
+    Mono<InstanceDetailsDbQueryDto> details(Mono<Long> id);
 }

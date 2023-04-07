@@ -1,5 +1,5 @@
 drop table if exists auth_user;
-drop table if exists region;
+drop table if exists instanceRegion;
 drop table if exists instance;
 drop table if exists instance_address;
 drop table if exists instance_alert;
@@ -16,7 +16,7 @@ create table auth_user
     user_isActive   bool
 );
 
-create table region
+create table instanceRegion
 (
     region_id   varchar(5) not null primary key,
     linode_name varchar(20),
@@ -103,5 +103,5 @@ insert into instance_spec (i_spec_id, i_spec_disk, i_spec_memory, i_spec_transfe
 values (1, 2137, 420, 10, 10, 3);
 
 
-insert into region(region_id, linode_name, full_name)
+insert into instanceRegion(region_id, linode_name, full_name)
 values ('us-e', 'us-east', 'United States East')

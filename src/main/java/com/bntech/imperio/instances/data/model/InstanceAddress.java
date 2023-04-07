@@ -2,6 +2,7 @@ package com.bntech.imperio.instances.data.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import lombok.Builder;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -11,6 +12,7 @@ import java.util.Objects;
 
 @Table(name = "instance_address")
 @JsonAutoDetect
+@Builder
 public final class InstanceAddress {
     @Column("i_ip_id")
     private final Integer id;

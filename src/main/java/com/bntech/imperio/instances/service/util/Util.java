@@ -13,15 +13,14 @@ public class Util {
 
     public static Mono<ServerResponse> stringServerResponse(Mono<String> instanceDetails) {
         return instanceDetails
-                .log("linodeServicesDeploySingleEngine-stringServerResponse")
                 .flatMap(userResponse -> {
-                    log.info("strinServerResponse: {} ", userResponse);
+                    log.info("stringServerResponse: {} ", userResponse);
                     return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(Mono.just(userResponse), String.class);
                 });
     }
 
     public static String commonRegions(String location) {
-        Map<String, String> commonRegions = Map.of("us-east", "us-e", "us-west", "us-w");
+        Map<String, String> commonRegions = Map.of("us-east", "us-e", "us-west", "us-w", "us-southeast", "us-se");
 
         return commonRegions.get(location);
 
