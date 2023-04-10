@@ -24,7 +24,7 @@ public class TypeConverter {
         return inets.stream().map(InetAddress::getHostAddress).toList();
     }
 
-    public static InetAddress[] stringListToInetArr(List<String> strings) {
+    public static List<InetAddress>  stringListToInetArr(List<String> strings) {
         log.info("stringListToInetList: {} ", strings);
         List<InetAddress> inetAddresses = new ArrayList<>();
         strings.forEach(ip -> {
@@ -56,10 +56,7 @@ public class TypeConverter {
             }
         });
         inetAddresses.forEach(inetAddress -> log.info("Inet address: {}, {}", inetAddress.getAddress(), inetAddress.getHostAddress()));
-        return inetListToInetArr(inetAddresses);
+        return inetAddresses;
     }
 
-    public static InetAddress[] inetListToInetArr(List<InetAddress> instanceIpv4) {
-        return instanceIpv4.toArray(new InetAddress[0]);
-    }
 }

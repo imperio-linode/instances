@@ -19,7 +19,6 @@ import java.net.Inet6Address;
 import java.net.UnknownHostException;
 
 import static com.bntech.imperio.instances.service.util.TypeConverter.stringListToInetArr;
-import static com.bntech.imperio.instances.service.util.TypeConverter.inetListToInetArr;
 
 @Component
 @Slf4j
@@ -112,7 +111,7 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
     private InstanceAddress dtoToAddress(InstanceDetailsDbQueryDto instance) {
         return InstanceAddress.builder()
                 .id(instance.getI_ip_id())
-                .instanceIpv4(inetListToInetArr(instance.getI_ip_v4()))
+                .instanceIpv4(instance.getI_ip_v4())
                 .instanceIpv6(instance.getI_ip_v6())
                 .build();
     }
