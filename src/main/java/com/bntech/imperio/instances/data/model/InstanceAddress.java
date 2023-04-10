@@ -3,6 +3,7 @@ package com.bntech.imperio.instances.data.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Builder;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -15,6 +16,7 @@ import java.util.Objects;
 @Builder
 public final class InstanceAddress {
     @Column("i_ip_id")
+    @Id
     private final Integer id;
     @Column("i_ip_v4")
     private final List<InetAddress> instanceIpv4;

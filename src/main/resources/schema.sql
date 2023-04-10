@@ -18,7 +18,7 @@ create table auth_user
 create table instance
 (
     instance_id                     serial
-        constraint id primary key,
+        constraint instance_id primary key,
     instance_region                 varchar(5),
     instance_alert_id               bigint,
     instance_address_id             bigint,
@@ -43,14 +43,16 @@ create table instance
 
 create table instance_address
 (
-    i_ip_id bigint not null primary key,
+    i_ip_id serial
+        constraint i_ip_id primary key,
     i_ip_v4 inet[1],
     i_ip_v6 inet
 );
 
 create table instance_alert
 (
-    i_alert_id             bigint not null primary key,
+    i_alert_id             serial
+        constraint i_alert_id primary key,
     i_alert_cpu            integer,
     i_alert_io             integer,
     i_alert_network_in     integer,
@@ -60,7 +62,8 @@ create table instance_alert
 
 create table instance_spec
 (
-    i_spec_id       bigint not null primary key,
+    i_spec_id       serial
+        constraint i_spec_id primary key,
     i_spec_disk     integer,
     i_spec_memory   integer,
     i_spec_vcpu     integer,
@@ -80,16 +83,16 @@ insert into instance (instance_id, instance_alert_id, instance_address_id, insta
                       instance_backup_window, instance_created, instance_group, instance_host_uuid, instance_hypervisor,
                       instance_image, instance_label, instance_status, instance_tags, instance_type, instance_updated,
                       instance_watchdog_enable)
-values (0, 1, 1, 1, false, false, '2004-10-19 10:23:54', 3, 'window', 'creted', 'group', 'host_uuid',
+values (0, 0, 0, 0, false, false, '2004-10-19 10:23:54', 3, 'window', 'creted', 'group', 'host_uuid',
         'hypervisor', 'image', 'label',
         'running', '{tags, tags2}', 'type', 'updated', false);
 
 insert into instance_address(i_ip_id, i_ip_v4, i_ip_v6)
-values (1, '{192.168.0.1, 192.168.0.2}', '0000:0000:0000:0000:0000:ffff:c0a8:0001');
+values (0, '{192.168.0.1, 192.168.0.2}', '0000:0000:0000:0000:0000:ffff:c0a8:0001');
 
 insert into instance_alert (i_alert_id, i_alert_cpu, i_alert_io, i_alert_network_in, i_alert_network_out,
                             i_alert_transfer_quota)
-values (1, 30, 30, 30, 30, 30);
+values (0, 30, 30, 30, 30, 30);
 
 insert into instance_spec (i_spec_id, i_spec_disk, i_spec_memory, i_spec_transfer, i_spec_vcpu, i_spec_gpus)
-values (1, 2137, 420, 10, 10, 3);
+values (0, 2137, 420, 10, 10, 3);

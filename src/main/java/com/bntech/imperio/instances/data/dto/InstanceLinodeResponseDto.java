@@ -1,11 +1,8 @@
 package com.bntech.imperio.instances.data.dto;
 
-import com.bntech.imperio.instances.data.model.InstanceAlert;
-import com.bntech.imperio.instances.data.model.InstanceSpec;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.Builder;
 
-import java.net.InetAddress;
 import java.time.Instant;
 import java.util.List;
 
@@ -20,7 +17,7 @@ public record InstanceLinodeResponseDto(
         String hypervisor,
         Long id,
         String image,
-        List<InetAddress> ipv4,
+        List<String> ipv4,
         String ipv6,
         String label,
         InstanceLinodeReplySpecsDto specs,

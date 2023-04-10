@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
 
-import java.net.Inet6Address;
 import java.net.UnknownHostException;
 
 
@@ -28,7 +27,7 @@ public interface InstanceSubcomponentsService {
 
     Mono<InstanceSpec> getSpecById(Mono<Integer> id);
 
-    Mono<Instance> upsertUpdate(Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec> tuple);
+    Mono<Instance> upsertInstanceSubscomponents(Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec> tuple);
 
     static Mono<InstanceAlert> createNewAlert(InstanceLinodeResponseDto dto, InstanceAlertRepo alerts) {
         return alerts.save(InstanceAlert.builder()
@@ -49,12 +48,5 @@ public interface InstanceSubcomponentsService {
                 .build());
     }
 
-    static Mono<InstanceAddress> createNewAddress(InstanceLinodeResponseDto dto, InstanceAddressRepo addresses) throws UnknownHostException {
-        return addresses.save(InstanceAddress.builder()
-                .instanceIpv4(dto.ipv4())
-                .instanceIpv6(Inet6Address.getByName(dto.ipv6().split("/")[0]))
-                .build());
-
-
-    }
+    Mono<InstanceAddress> createNewAddress(InstanceLinodeResponseDto dto, InstanceAddressRepo addresses) throws UnknownHostException;
 }

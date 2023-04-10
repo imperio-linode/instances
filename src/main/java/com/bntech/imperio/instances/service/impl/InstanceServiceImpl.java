@@ -16,10 +16,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple4;
 
 import java.net.UnknownHostException;
 import java.util.List;
+
+import static com.bntech.imperio.instances.service.util.TypeConverter.inetListToStringList;
 
 @Component
 @Slf4j
@@ -61,24 +62,21 @@ public class InstanceServiceImpl implements InstanceService {
                     try {
                         return instances.allAboutOne(Mono.just(dto.id()))
                                 .flatMap(subcomponentsService::allAboutOneToSubcomponents)
-                                .flatMap(subcomponentsService::upsertUpdate)
-                                .log()
+                                .flatMap(subcomponentsService::upsertInstanceSubscomponents)
                                 .switchIfEmpty(upsertCreate(dto))
                                 .log()
                                 .onErrorResume(e -> {
-                                    log.error("Error while upserting instance: {}", dto.id(), e);
+                                    log.error("Error while upserting instance: {} / {} / {}", dto.id(), e.getLocalizedMessage(), e.getClass().getName());
                                     return Mono.empty();
-                                })
-                                .log();
+                                });
                     } catch (UnknownHostException e) {
                         return Flux.error(new RuntimeException(e));
                     }
                 });
     }
 
-
-
     private Mono<Instance> upsertCreate(InstanceLinodeResponseDto dto) throws UnknownHostException {
+        log.info("Creating upsert: {}", dto.id());
         return subcomponentsService.createAll(dto)
                 .flatMap(tuple -> Mono.just(Instance.builder()
                         .alert(tuple.getT1().id())
@@ -129,7 +127,7 @@ public class InstanceServiceImpl implements InstanceService {
                 detailsDto.getInstance_hypervisor(),
                 Long.parseLong(detailsDto.getInstance_id().toString()),
                 detailsDto.getInstance_image(),
-                detailsDto.getI_ip_v4(),
+                inetListToStringList(detailsDto.getI_ip_v4()),
                 detailsDto.getI_ip_v6().toString(),
                 detailsDto.getInstance_label(),
                 InstanceLinodeResponseDto.InstanceLinodeReplySpecsDto.builder()

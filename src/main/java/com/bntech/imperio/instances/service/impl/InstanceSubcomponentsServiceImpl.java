@@ -8,16 +8,18 @@ import com.bntech.imperio.instances.data.model.repository.InstanceAlertRepo;
 import com.bntech.imperio.instances.data.model.repository.InstanceRepo;
 import com.bntech.imperio.instances.data.model.repository.InstanceSpecRepo;
 import com.bntech.imperio.instances.service.InstanceSubcomponentsService;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
 
+import java.net.Inet6Address;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+
+import static com.bntech.imperio.instances.service.util.TypeConverter.stringListToInetList;
 
 @Component
 @Slf4j
@@ -41,7 +43,7 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
         log.info("CreateAll: " + dto);
         return Mono.zip(
                 InstanceSubcomponentsService.createNewAlert(dto, alerts),
-                InstanceSubcomponentsService.createNewAddress(dto, addresses),
+                createNewAddress(dto, addresses),
                 InstanceSubcomponentsService.createNewSpec(dto, specs));
     }
 
@@ -55,8 +57,10 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
                 Mono.just(dtoToSpec(instance)));
     }
 
+    //todo: Maybe in zip edit instance ids to match ones from zip.
     @Override
-    public Mono<Instance> upsertUpdate(Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec> tuple) {
+    public Mono<Instance> upsertInstanceSubscomponents(Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec> tuple) {
+        log.info("updating upsert: " + tuple.getT1().getId());
         Mono<Instance> instance = instances.save(tuple.getT1());
         Mono<InstanceAlert> alert = alerts.save(tuple.getT2());
         Mono<InstanceAddress> address = addresses.save(tuple.getT3());
@@ -81,6 +85,20 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
     @Override
     public Mono<InstanceSpec> getSpecById(Mono<Integer> id) {
         return specs.getById(id);
+    }
+
+    @Override
+    public Mono<InstanceAddress> createNewAddress(InstanceLinodeResponseDto dto, InstanceAddressRepo addresses) throws UnknownHostException {
+        log.info("Creating new address from: " + dto.ipv4() + " " + dto.ipv6().split("/")[0]);
+        InstanceAddress add = InstanceAddress.builder()
+                .instanceIpv6(Inet6Address.getByName(dto.ipv6().split("/")[0]))
+                .instanceIpv4(stringListToInetList(dto.ipv4()))
+                .build();
+
+        add.instanceIpv4().forEach(ip -> log.info("v4::: / hostname: " + ip.getHostName() + " / address: " + Arrays.toString(ip.getAddress()) + " / hostAddress: " + ip.getHostAddress()));
+        log.info("v6::: / hostname: " + add.instanceIpv6().getHostName() + " / address: " + Arrays.toString(add.instanceIpv6().getAddress()) + " / hostAddress: " + add.instanceIpv6().getHostAddress());
+
+        return addresses.save(add);
     }
 
     private InstanceAlert dtoToAlert(InstanceDetailsDbQueryDto instance) {
