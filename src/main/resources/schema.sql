@@ -19,7 +19,7 @@ create table instance
 (
     instance_id                     serial
         constraint instance_id primary key,
-    instance_region                 varchar(5),
+    instance_region                 varchar(15),
     instance_alert_id               bigint,
     instance_address_id             bigint,
     instance_specs_id               bigint,
@@ -27,17 +27,17 @@ create table instance
     instance_backup_enabled         bool,
     instance_backup_last_successful timestamp,
     instance_backup_day             int,
-    instance_backup_window          varchar(35),
-    instance_created                varchar(35),
-    instance_group                  varchar(35),
-    instance_host_uuid              varchar(35),
-    instance_hypervisor             varchar(35),
+    instance_backup_window          varchar(30),
+    instance_created                varchar(31),
+    instance_group                  varchar(32),
+    instance_host_uuid              varchar(45),
+    instance_hypervisor             varchar(34),
     instance_image                  varchar(35),
-    instance_label                  varchar(35),
-    instance_status                 varchar(35),
-    instance_tags                   varchar(35)[],
-    instance_type                   varchar(35),
-    instance_updated                varchar(35),
+    instance_label                  varchar(36),
+    instance_status                 varchar(37),
+    instance_tags                   varchar(38)[],
+    instance_type                   varchar(39),
+    instance_updated                varchar(40),
     instance_watchdog_enable        bool
 );
 

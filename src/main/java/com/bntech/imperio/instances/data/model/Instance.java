@@ -20,8 +20,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class Instance {
+    //todo: We should add @Id here but after performing https://stackoverflow.com/a/62427578.
     @Column("instance_id")
-    @Id
     private Long id;
     @Column("instance_region")
     private String region;

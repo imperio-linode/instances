@@ -37,21 +37,20 @@ public class TypeConverter {
                     int prefixLength = Integer.parseInt(parts[1]);
                     if (inetAddress instanceof Inet4Address) {
                         byte[] addressBytes = inetAddress.getAddress();
-                        log.info("instanceOf inet4 address: {}", addressBytes);
                         for (int i = prefixLength; i < addressBytes.length * 8; i++) {
                             addressBytes[i / 8] &= ~(1 << (7 - (i % 8)));
                         }
                         inetAddress = Inet4Address.getByAddress(addressBytes);
+                        inetAddresses.add(inetAddress);
                     } else if (inetAddress instanceof Inet6Address) {
                         byte[] addressBytes = inetAddress.getAddress();
-                        log.info("instanceOf inet6 address: {}", addressBytes);
                         for (int i = prefixLength; i < addressBytes.length * 8; i++) {
                             addressBytes[i / 8] &= ~(1 << (7 - (i % 8)));
                         }
                         inetAddress = Inet6Address.getByAddress(addressBytes);
+                        inetAddresses.add(inetAddress);
                     }
                 }
-                log.info("Adding inet: {}, {}", inetAddress.getHostAddress(), inetAddress.getAddress());
             } catch (UnknownHostException | NumberFormatException e) {
                 System.err.println("Error: " + e.getMessage());
             }

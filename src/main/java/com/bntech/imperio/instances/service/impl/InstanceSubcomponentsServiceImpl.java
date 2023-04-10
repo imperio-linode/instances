@@ -89,14 +89,10 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
 
     @Override
     public Mono<InstanceAddress> createNewAddress(InstanceLinodeResponseDto dto, InstanceAddressRepo addresses) throws UnknownHostException {
-        log.info("Creating new address from: " + dto.ipv4() + " " + dto.ipv6().split("/")[0]);
         InstanceAddress add = InstanceAddress.builder()
                 .instanceIpv6(Inet6Address.getByName(dto.ipv6().split("/")[0]))
                 .instanceIpv4(stringListToInetList(dto.ipv4()))
                 .build();
-
-        add.instanceIpv4().forEach(ip -> log.info("v4::: / hostname: " + ip.getHostName() + " / address: " + Arrays.toString(ip.getAddress()) + " / hostAddress: " + ip.getHostAddress()));
-        log.info("v6::: / hostname: " + add.instanceIpv6().getHostName() + " / address: " + Arrays.toString(add.instanceIpv6().getAddress()) + " / hostAddress: " + add.instanceIpv6().getHostAddress());
 
         return addresses.save(add);
     }
