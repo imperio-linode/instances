@@ -14,7 +14,6 @@ import java.util.Objects;
 @Builder
 public final class InstanceSpec {
     @Column("i_spec_id")
-    @Id
     private final Integer id;
     @Column("i_spec_disk")
     private final Integer disk;

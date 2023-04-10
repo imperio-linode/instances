@@ -78,6 +78,7 @@ public class InstanceServiceImpl implements InstanceService {
     private Mono<Instance> upsertCreate(InstanceLinodeResponseDto dto) throws UnknownHostException {
         log.info("Creating upsert: {}", dto.id());
         return subcomponentsService.createAll(dto)
+                .log("subcomponents created")
                 .flatMap(tuple -> Mono.just(Instance.builder()
                         .alert(tuple.getT1().id())
                         .address(tuple.getT2().id())

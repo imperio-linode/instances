@@ -19,6 +19,8 @@ import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -41,6 +43,7 @@ public class DatabaseConfiguration {
         converters.add(DurationReadConverter.INSTANCE);
         converters.add(ZonedDateTimeReadConverter.INSTANCE);
         converters.add(ZonedDateTimeWriteConverter.INSTANCE);
+        converters.add(Ipv4WritingConverter.INSTANCE);
 
         return R2dbcCustomConversions.of(dialect, converters);
     }
@@ -79,6 +82,15 @@ public class DatabaseConfiguration {
 
         public LocalDateTime convert(Instant source) {
             return LocalDateTime.ofInstant(source, ZoneOffset.UTC);
+        }
+    }
+
+    @WritingConverter
+    public enum Ipv4WritingConverter implements Converter<Inet4Address, InetAddress> {
+        INSTANCE;
+
+        public InetAddress convert(Inet4Address source) {
+            return (InetAddress) source;
         }
     }
 

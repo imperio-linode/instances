@@ -17,9 +17,9 @@ import reactor.util.function.Tuple4;
 
 import java.net.Inet6Address;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 
-import static com.bntech.imperio.instances.service.util.TypeConverter.stringListToInetList;
+import static com.bntech.imperio.instances.service.util.TypeConverter.stringListToInetArr;
+import static com.bntech.imperio.instances.service.util.TypeConverter.inetListToInetArr;
 
 @Component
 @Slf4j
@@ -43,7 +43,7 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
         log.info("CreateAll: " + dto);
         return Mono.zip(
                 InstanceSubcomponentsService.createNewAlert(dto, alerts),
-                createNewAddress(dto, addresses),
+                createNewAddress(dto, addresses).log("createSubcomponentsAddress"),
                 InstanceSubcomponentsService.createNewSpec(dto, specs));
     }
 
@@ -63,7 +63,7 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
         log.info("updating upsert: " + tuple.getT1().getId());
         Mono<Instance> instance = instances.save(tuple.getT1());
         Mono<InstanceAlert> alert = alerts.save(tuple.getT2());
-        Mono<InstanceAddress> address = addresses.save(tuple.getT3());
+        Mono<InstanceAddress> address = addresses.save(tuple.getT3()).log("updateSubcomponentsAddress");
         Mono<InstanceSpec> spec = specs.save(tuple.getT4());
 
         return Mono.zip(instance, alert, address, spec)
@@ -91,8 +91,9 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
     public Mono<InstanceAddress> createNewAddress(InstanceLinodeResponseDto dto, InstanceAddressRepo addresses) throws UnknownHostException {
         InstanceAddress add = InstanceAddress.builder()
                 .instanceIpv6(Inet6Address.getByName(dto.ipv6().split("/")[0]))
-                .instanceIpv4(stringListToInetList(dto.ipv4()))
+                .instanceIpv4(stringListToInetArr(dto.ipv4()))
                 .build();
+        log.info("Built address: {}, {}", add.instanceIpv6().getHostAddress(), add.instanceIpv6().getAddress());
 
         return addresses.save(add);
     }
@@ -111,7 +112,7 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
     private InstanceAddress dtoToAddress(InstanceDetailsDbQueryDto instance) {
         return InstanceAddress.builder()
                 .id(instance.getI_ip_id())
-                .instanceIpv4(instance.getI_ip_v4())
+                .instanceIpv4(inetListToInetArr(instance.getI_ip_v4()))
                 .instanceIpv6(instance.getI_ip_v6())
                 .build();
     }

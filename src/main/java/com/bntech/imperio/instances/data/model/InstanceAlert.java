@@ -14,7 +14,6 @@ import java.util.Objects;
 @Builder
 public final class InstanceAlert {
     @Column("i_alert_id")
-    @Id
     private final Integer id;
     @Column("i_alert_cpu")
     private final Integer cpu;

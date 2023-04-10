@@ -16,15 +16,14 @@ import java.util.Objects;
 @Builder
 public final class InstanceAddress {
     @Column("i_ip_id")
-    @Id
     private final Integer id;
     @Column("i_ip_v4")
-    private final List<InetAddress> instanceIpv4;
+    private final InetAddress[] instanceIpv4;
     @Column("i_ip_v6")
     private final InetAddress instanceIpv6;
 
     @JsonCreator
-    public InstanceAddress(Integer id, List<InetAddress> instanceIpv4, InetAddress instanceIpv6) {
+    public InstanceAddress(Integer id, InetAddress[] instanceIpv4, InetAddress instanceIpv6) {
         this.id = id;
         this.instanceIpv4 = instanceIpv4;
         this.instanceIpv6 = instanceIpv6;
@@ -36,7 +35,7 @@ public final class InstanceAddress {
     }
 
     @Column("i_ip_v4")
-    public List<InetAddress> instanceIpv4() {
+    public InetAddress[] instanceIpv4() {
         return instanceIpv4;
     }
 
