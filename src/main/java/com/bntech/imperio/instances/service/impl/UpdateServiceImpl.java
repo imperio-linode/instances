@@ -50,10 +50,10 @@ public class UpdateServiceImpl implements UpdateService {
                 .flatMap(req -> {
                     try {
                         ObjectMapper mapper = new ObjectMapper();
-                        LinodeInstanceResponse res = mapper.readValue(req, LinodeInstanceResponse.class);
+                        LinodeInstanceResponse requestBody = mapper.readValue(req, LinodeInstanceResponse.class);
                         //until here correct
                         return instanceService
-                                .handleUpsert(res.getData())
+                                .upsertLinodeData(requestBody.getData())
                                 .doOnNext(savedInstances -> log.info("Saved instances: {}", savedInstances))
                                 .then(Mono.just(req));
                     } catch (JsonProcessingException e) {

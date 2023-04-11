@@ -39,14 +39,14 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @Override
-    public Mono<InstanceLinodeResponseDto> getInstanceDetails(Mono<String> id) {
+    public Mono<InstanceDetailsDbQueryDto> getInstanceDetails(Mono<String> id) {
+        log.info("Getting instance details: {}", id);
         return id.transform(TypeConverter::monoStringToLong)
-                .transform(instances::allAboutOne)
-                .transform(this::queryToResponse);
+                .transform(instances::allAboutOne);
     }
 
     @Override
-    public Mono<ServerResponse> initDeployment(Mono<InstanceCreateRequest> instanceRequest) {
+    public Mono<ServerResponse> handleInstanceCreateRequest(Mono<InstanceCreateRequest> instanceRequest) {
         return instanceRequest.flatMap(details -> switch (details.getRequestType()) {
             //todo: There is a parse because we need diff requests for diff instances
             case regular -> singleInstances.deploy(details);
@@ -56,26 +56,23 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @Override
-    public Flux<Instance> handleUpsert(List<InstanceLinodeResponseDto> linodeResponseDtos) {
+    public Flux<Instance> upsertLinodeData(List<InstanceLinodeResponseDto> linodeResponseDtos) {
         return Flux.fromIterable(linodeResponseDtos)
+                //todo: rework to make map and insert all instead of few inserts
                 .flatMap(dto -> {
+                    log.info("Upserting instance: {}", dto.id());
                     try {
-                        log.info("Upserting instance: {}", dto.id());
-                        return instances.getById(Mono.just(dto.id()))
-
-                                .switchIfEmpty(upsertCreate(dto))
-                                .log()
-                                .onErrorResume(e -> {
-                                    log.error("Error while upserting instance: {} / {} / {}", dto.id(), e.getLocalizedMessage(), e.getClass().getName());
-                                    return Mono.empty();
-                                });
+                        return getInstanceDetails(Mono.just(dto.id().toString()))
+                                .flatMap(fromDatabase -> upsertLinodeDataUpdate(dto, fromDatabase))
+                                .switchIfEmpty(this.upsertLinodeDataCreate(dto));
                     } catch (UnknownHostException e) {
                         return Flux.error(new RuntimeException(e));
                     }
+
                 });
     }
 
-    private Mono<Instance> upsertCreate(InstanceLinodeResponseDto dto) throws UnknownHostException {
+    private Mono<Instance> upsertLinodeDataCreate(InstanceLinodeResponseDto dto) throws UnknownHostException {
         log.info("Creating upsert: {}", dto.id());
         return subcomponentsService.createAll(dto)
                 .log("subcomponents created")
@@ -108,9 +105,12 @@ public class InstanceServiceImpl implements InstanceService {
                 .flatMap(instances::save);
     }
 
-    private Mono<>
+    private Mono<Instance> upsertLinodeDataUpdate(InstanceLinodeResponseDto update, InstanceDetailsDbQueryDto current) {
+        return null;
+    }
 
-    private Mono<InstanceLinodeResponseDto> queryToResponse(Mono<InstanceDetailsDbQueryDto> dto) {
+    @Override
+    public Mono<InstanceLinodeResponseDto> queryToResponse(Mono<InstanceDetailsDbQueryDto> dto) {
         return dto.flatMap(detailsDto -> Mono.just(new InstanceLinodeResponseDto(
                 InstanceLinodeResponseDto.InstanceLinodeReplyAlertDto.builder()
                         .cpu(detailsDto.getI_alert_cpu())

@@ -1,5 +1,6 @@
 package com.bntech.imperio.instances.service;
 
+import com.bntech.imperio.instances.data.dto.InstanceDetailsDbQueryDto;
 import com.bntech.imperio.instances.data.dto.InstanceLinodeResponseDto;
 import com.bntech.imperio.instances.data.model.Instance;
 import com.bntech.imperio.instances.data.object.InstanceCreateRequest;
@@ -13,10 +14,12 @@ import java.util.List;
 @Service
 public interface InstanceService {
 
-    Mono<InstanceLinodeResponseDto> getInstanceDetails(Mono<String> id);
+    Mono<InstanceDetailsDbQueryDto> getInstanceDetails(Mono<String> id);
 
-    Mono<ServerResponse> initDeployment(Mono<InstanceCreateRequest> requestMono);
+    Mono<ServerResponse> handleInstanceCreateRequest(Mono<InstanceCreateRequest> requestMono);
 
-    Flux<Instance> handleUpsert(List<InstanceLinodeResponseDto> dto);
+    Flux<Instance> upsertLinodeData(List<InstanceLinodeResponseDto> dto);
+
+    Mono<InstanceLinodeResponseDto> queryToResponse(Mono<InstanceDetailsDbQueryDto> dto);
 
 }

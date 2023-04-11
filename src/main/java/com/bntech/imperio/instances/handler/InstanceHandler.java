@@ -48,6 +48,7 @@ public class InstanceHandler {
         return request.pathVariable("id")
                 .transform(Mono::just)
                 .transform(instanceService::getInstanceDetails)
+                .transform(instanceService::queryToResponse)
                 .map(dto -> new InstanceResponse(List.of(dto)))
                 .transform(this::serverResponse)
                 .onErrorResume(errorHandler::throwableError);
@@ -61,7 +62,7 @@ public class InstanceHandler {
 
                     return response;
                 })
-                .transform(instanceService::initDeployment);
+                .transform(instanceService::handleInstanceCreateRequest);
     }
 
     public Mono<ServerResponse> update(ServerRequest request) {
@@ -70,7 +71,7 @@ public class InstanceHandler {
     }
 
     private Mono<ServerResponse> serverResponse(Mono<?> mono) {
-        return ServerResponse.status(200).contentType(MediaType.APPLICATION_JSON).body(mono, mono.getClass()).log();
+        return ServerResponse.status(200).contentType(MediaType.APPLICATION_JSON).body(mono, mono.getClass()).log("ServerResponse");
     }
 
     private Mono<InstanceCreateRequest> bytesToObj(Mono<ByteBuf> buff) {

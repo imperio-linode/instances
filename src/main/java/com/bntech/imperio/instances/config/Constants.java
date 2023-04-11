@@ -14,7 +14,7 @@ public final class Constants {
 
 
     public static final String api_HELLO = "/hello";
-    public static final String api_ID = "/one/{id}";
+    public static final String api_ID = "/engine/one/{id}";
     public static final String api_ADD = "/add";
     public static final String api_CREATE_ENGINE = "/engine/add";
     public static final String api_UPDATE_ENGINES = "/engine/update";

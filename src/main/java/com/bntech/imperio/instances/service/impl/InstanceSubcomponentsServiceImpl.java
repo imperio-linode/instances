@@ -44,48 +44,8 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
                 InstanceSubcomponentsService.createNewSpec(dto, specs));
     }
 
-    @Override
-    public Mono<Instance> allAboutOne(Mono<Long> id) {
-        return instances.allAboutOne(id)
-                .flatMap(this::allAboutOneToSubcomponents)
-                .flatMap(this::upsertInstanceSubscomponents);
-    }
-
-    @Override
-    public Mono<InstanceAlert> getAlertById(Mono<Integer> id) {
-        return alerts.getById(id);
-    }
-
-    @Override
-    public Mono<InstanceAddress> getAddressById(Mono<Integer> id) {
-        return addresses.getById(id);
-    }
-
-    @Override
-    public Mono<InstanceSpec> getSpecById(Mono<Integer> id) {
-        return specs.getById(id);
-    }
-
-    private Mono<Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec>> allAboutOneToSubcomponents(InstanceDetailsDbQueryDto instance) {
-        return Mono.zip(
-                Mono.just(dtoToInstance(instance)),
-                Mono.just(dtoToAlert(instance)),
-                Mono.just(dtoToAddress(instance)),
-                Mono.just(dtoToSpec(instance)));
-    }
-
     //todo: Maybe in zip edit instance ids to match ones from zip.
-    private Mono<Instance> upsertInstanceSubscomponents(Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec> tuple) {
-        log.info("updating upsert: " + tuple.getT1().getId());
-        Mono<Instance> instance = instances.save(tuple.getT1());
-        Mono<InstanceAlert> alert = alerts.save(tuple.getT2());
-        Mono<InstanceAddress> address = addresses.save(tuple.getT3()).log("updateSubcomponentsAddress");
-        Mono<InstanceSpec> spec = specs.save(tuple.getT4());
 
-        return Mono.zip(instance, alert, address, spec)
-                .map(Tuple4::getT1)
-                .log();
-    }
 
     private InstanceAlert dtoToAlert(InstanceDetailsDbQueryDto instance) {
         return InstanceAlert.builder()
@@ -141,3 +101,38 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
                 .build();
     }
 }
+
+//    private Mono<Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec>> allAboutOneToSubcomponents(InstanceDetailsDbQueryDto instance) {
+//        return Mono.zip(
+//                Mono.just(dtoToInstance(instance)),
+//                Mono.just(dtoToAlert(instance)),
+//                Mono.just(dtoToAddress(instance)),
+//                Mono.just(dtoToSpec(instance)));
+//    }
+
+//    private Mono<Instance> upsertInstanceSubscomponents(Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec> tuple) {
+//        log.info("updating upsert: " + tuple.getT1().getId());
+//        Mono<Instance> instance = instances.save(tuple.getT1());
+//        Mono<InstanceAlert> alert = alerts.save(tuple.getT2());
+//        Mono<InstanceAddress> address = addresses.save(tuple.getT3()).log("updateSubcomponentsAddress");
+//        Mono<InstanceSpec> spec = specs.save(tuple.getT4());
+//
+//        return Mono.zip(instance, alert, address, spec)
+//                .map(Tuple4::getT1)
+//                .log();
+//    }
+
+//    @Override
+//    public Mono<InstanceAlert> getAlertById(Mono<Integer> id) {
+//        return alerts.getById(id);
+//    }
+//
+//    @Override
+//    public Mono<InstanceAddress> getAddressById(Mono<Integer> id) {
+//        return addresses.getById(id);
+//    }
+//
+//    @Override
+//    public Mono<InstanceSpec> getSpecById(Mono<Integer> id) {
+//        return specs.getById(id);
+//    }
