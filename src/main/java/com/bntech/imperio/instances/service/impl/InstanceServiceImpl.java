@@ -60,9 +60,9 @@ public class InstanceServiceImpl implements InstanceService {
         return Flux.fromIterable(linodeResponseDtos)
                 .flatMap(dto -> {
                     try {
-                        return instances.allAboutOne(Mono.just(dto.id()))
-                                .flatMap(subcomponentsService::allAboutOneToSubcomponents)
-                                .flatMap(subcomponentsService::upsertInstanceSubscomponents)
+                        log.info("Upserting instance: {}", dto.id());
+                        return instances.getById(Mono.just(dto.id()))
+
                                 .switchIfEmpty(upsertCreate(dto))
                                 .log()
                                 .onErrorResume(e -> {
@@ -79,31 +79,36 @@ public class InstanceServiceImpl implements InstanceService {
         log.info("Creating upsert: {}", dto.id());
         return subcomponentsService.createAll(dto)
                 .log("subcomponents created")
-                .flatMap(tuple -> Mono.just(Instance.builder()
-                        .alert(tuple.getT1().id())
-                        .address(tuple.getT2().id())
-                        .spec(tuple.getT3().id())
-                        .id(dto.id())
-                        .region(dto.region())
-                        .available(dto.backups().available())
-                        .enabled(dto.backups().enabled())
-                        .last_successful(dto.backups().last_successful())
-                        .backup_day(dto.backups().schedule().day())
-                        .window(dto.backups().schedule().window())
-                        .created(dto.created())
-                        .group(dto.group())
-                        .host_uuid(dto.host_uuid())
-                        .hypervisor(dto.hypervisor())
-                        .image(dto.image())
-                        .label(dto.label())
-                        .status(dto.status())
-                        .tags(dto.tags())
-                        .type(dto.type())
-                        .updated(dto.updated())
-                        .watchdog_enabled(dto.watchdog_enabled())
-                        .build()))
+                .flatMap(tuple -> {
+                    log.info("subcomponents created address toString: {}", tuple.getT2());
+                    return Mono.just(Instance.builder()
+                            .alert(tuple.getT1().id())
+                            .address(tuple.getT2().id())
+                            .spec(tuple.getT3().id())
+                            .id(dto.id())
+                            .region(dto.region())
+                            .available(dto.backups().available())
+                            .enabled(dto.backups().enabled())
+                            .last_successful(dto.backups().last_successful())
+                            .backup_day(dto.backups().schedule().day())
+                            .window(dto.backups().schedule().window())
+                            .created(dto.created())
+                            .group(dto.group())
+                            .host_uuid(dto.host_uuid())
+                            .hypervisor(dto.hypervisor())
+                            .image(dto.image())
+                            .label(dto.label())
+                            .status(dto.status())
+                            .tags(dto.tags())
+                            .type(dto.type())
+                            .updated(dto.updated())
+                            .watchdog_enabled(dto.watchdog_enabled())
+                            .build());
+                })
                 .flatMap(instances::save);
     }
+
+    private Mono<>
 
     private Mono<InstanceLinodeResponseDto> queryToResponse(Mono<InstanceDetailsDbQueryDto> dto) {
         return dto.flatMap(detailsDto -> Mono.just(new InstanceLinodeResponseDto(

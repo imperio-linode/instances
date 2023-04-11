@@ -15,10 +15,8 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
 
-import java.net.Inet6Address;
 import java.net.UnknownHostException;
 
-import static com.bntech.imperio.instances.service.util.TypeConverter.stringListToInetArr;
 
 @Component
 @Slf4j
@@ -42,39 +40,21 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
         log.info("CreateAll: " + dto);
         return Mono.zip(
                 InstanceSubcomponentsService.createNewAlert(dto, alerts),
-                createNewAddress(dto, addresses).log("createSubcomponentsAddress"),
+                InstanceSubcomponentsService.createNewAddress(dto, addresses),
                 InstanceSubcomponentsService.createNewSpec(dto, specs));
     }
 
     @Override
-    public Mono<Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec>> allAboutOneToSubcomponents(InstanceDetailsDbQueryDto instance) {
-        log.info("AllAboutOne: " + instance);
-        return Mono.zip(
-                Mono.just(dtoToInstance(instance)),
-                Mono.just(dtoToAlert(instance)),
-                Mono.just(dtoToAddress(instance)),
-                Mono.just(dtoToSpec(instance)));
-    }
-
-    //todo: Maybe in zip edit instance ids to match ones from zip.
-    @Override
-    public Mono<Instance> upsertInstanceSubscomponents(Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec> tuple) {
-        log.info("updating upsert: " + tuple.getT1().getId());
-        Mono<Instance> instance = instances.save(tuple.getT1());
-        Mono<InstanceAlert> alert = alerts.save(tuple.getT2());
-        Mono<InstanceAddress> address = addresses.save(tuple.getT3()).log("updateSubcomponentsAddress");
-        Mono<InstanceSpec> spec = specs.save(tuple.getT4());
-
-        return Mono.zip(instance, alert, address, spec)
-                .map(Tuple4::getT1)
-                .log();
+    public Mono<Instance> allAboutOne(Mono<Long> id) {
+        return instances.allAboutOne(id)
+                .flatMap(this::allAboutOneToSubcomponents)
+                .flatMap(this::upsertInstanceSubscomponents);
     }
 
     @Override
     public Mono<InstanceAlert> getAlertById(Mono<Integer> id) {
         return alerts.getById(id);
     }
-
 
     @Override
     public Mono<InstanceAddress> getAddressById(Mono<Integer> id) {
@@ -86,15 +66,25 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
         return specs.getById(id);
     }
 
-    @Override
-    public Mono<InstanceAddress> createNewAddress(InstanceLinodeResponseDto dto, InstanceAddressRepo addresses) throws UnknownHostException {
-        InstanceAddress add = InstanceAddress.builder()
-                .instanceIpv6(Inet6Address.getByName(dto.ipv6().split("/")[0]))
-                .instanceIpv4(stringListToInetArr(dto.ipv4()))
-                .build();
-        log.info("Built address: {}, {}", add.instanceIpv6().getHostAddress(), add.instanceIpv6().getAddress());
+    private Mono<Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec>> allAboutOneToSubcomponents(InstanceDetailsDbQueryDto instance) {
+        return Mono.zip(
+                Mono.just(dtoToInstance(instance)),
+                Mono.just(dtoToAlert(instance)),
+                Mono.just(dtoToAddress(instance)),
+                Mono.just(dtoToSpec(instance)));
+    }
 
-        return addresses.save(add);
+    //todo: Maybe in zip edit instance ids to match ones from zip.
+    private Mono<Instance> upsertInstanceSubscomponents(Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec> tuple) {
+        log.info("updating upsert: " + tuple.getT1().getId());
+        Mono<Instance> instance = instances.save(tuple.getT1());
+        Mono<InstanceAlert> alert = alerts.save(tuple.getT2());
+        Mono<InstanceAddress> address = addresses.save(tuple.getT3()).log("updateSubcomponentsAddress");
+        Mono<InstanceSpec> spec = specs.save(tuple.getT4());
+
+        return Mono.zip(instance, alert, address, spec)
+                .map(Tuple4::getT1)
+                .log();
     }
 
     private InstanceAlert dtoToAlert(InstanceDetailsDbQueryDto instance) {

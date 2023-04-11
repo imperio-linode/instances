@@ -11,7 +11,10 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
 
+import java.net.Inet6Address;
 import java.net.UnknownHostException;
+
+import static com.bntech.imperio.instances.service.util.TypeConverter.stringListToInetList;
 
 
 @Service
@@ -19,15 +22,13 @@ public interface InstanceSubcomponentsService {
 
     Mono<Tuple3<InstanceAlert, InstanceAddress, InstanceSpec>> createAll(InstanceLinodeResponseDto dto) throws UnknownHostException;
 
-    Mono<Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec>> allAboutOneToSubcomponents(InstanceDetailsDbQueryDto instance);
+    Mono<Instance> allAboutOne(Mono<Long> id);
 
     Mono<InstanceAlert> getAlertById(Mono<Integer> id);
 
     Mono<InstanceAddress> getAddressById(Mono<Integer> id);
 
     Mono<InstanceSpec> getSpecById(Mono<Integer> id);
-
-    Mono<Instance> upsertInstanceSubscomponents(Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec> tuple);
 
     static Mono<InstanceAlert> createNewAlert(InstanceLinodeResponseDto dto, InstanceAlertRepo alerts) {
         return alerts.save(InstanceAlert.builder()
@@ -37,7 +38,6 @@ public interface InstanceSubcomponentsService {
                 .network_out(dto.alerts().network_out())
                 .transfer_quota(dto.alerts().transfer_quota())
                 .build());
-
     }
 
     static Mono<InstanceSpec> createNewSpec(InstanceLinodeResponseDto dto, InstanceSpecRepo specs) {
@@ -48,5 +48,10 @@ public interface InstanceSubcomponentsService {
                 .build());
     }
 
-    Mono<InstanceAddress> createNewAddress(InstanceLinodeResponseDto dto, InstanceAddressRepo addresses) throws UnknownHostException;
+    static Mono<InstanceAddress> createNewAddress(InstanceLinodeResponseDto dto, InstanceAddressRepo addresses) throws UnknownHostException {
+        return addresses.save(InstanceAddress.builder()
+                .instanceIpv6(Inet6Address.getByName(dto.ipv6().split("/")[0]))
+                .instanceIpv4(stringListToInetList(dto.ipv4()))
+                .build());
+    }
 }
