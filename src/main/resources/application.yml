@@ -18,6 +18,9 @@ infrastructure:
     port: 443
   auth:
     port: 8080
+  linode-api:
+    host: https://api.linode.com/v4
+    token: ${linode_token}
 
 spring:
   application:
@@ -42,6 +45,9 @@ spring:
       pool:
         allow-core-thread-timeout: true
         core-size: 8
+        max-size: 8
+        queue-capacity: 100
+        keep-alive: 60s
   devtools:
     restart:
       enabled: false

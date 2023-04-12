@@ -38,6 +38,11 @@ spec:
                 secretKeyRef:
                   name: imperio-store
                   key: spring
+            - name: linode_token
+              valueFrom:
+                secretKeyRef:
+                  name: linode-token
+                  key: linode-token
 ---
 apiVersion: v1
 kind: Service
