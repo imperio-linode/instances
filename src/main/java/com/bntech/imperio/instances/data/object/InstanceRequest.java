@@ -2,9 +2,6 @@ package com.bntech.imperio.instances.data.object;
 
 import com.bntech.imperio.instances.data.object.types.InstanceRequestType;
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

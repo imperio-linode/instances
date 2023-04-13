@@ -24,7 +24,6 @@ import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClient;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 import static com.bntech.imperio.instances.config.Constants.api_CREATE_ENGINE;
 import static io.netty.util.CharsetUtil.US_ASCII;
@@ -72,7 +71,6 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
                                     return buff.toString(US_ASCII);
                                 })
                         )
-                        .log("service.impl.instanceService.linodeServicesDeploySingleEngine.1")
                         .transform(Util::stringServerResponse)
                         .flatMap(response -> {
                             Instance i = details.toInstance();

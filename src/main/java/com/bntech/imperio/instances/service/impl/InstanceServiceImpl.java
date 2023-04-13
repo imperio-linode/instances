@@ -5,6 +5,7 @@ import com.bntech.imperio.instances.data.dto.InstanceLinodeResponseDto;
 import com.bntech.imperio.instances.data.model.*;
 import com.bntech.imperio.instances.data.model.repository.*;
 import com.bntech.imperio.instances.data.object.InstanceCreateRequest;
+import com.bntech.imperio.instances.data.object.types.InstanceStatus;
 import com.bntech.imperio.instances.service.InstanceService;
 import com.bntech.imperio.instances.service.InstanceSubcomponentsService;
 import com.bntech.imperio.instances.service.SingleInstanceService;
@@ -41,11 +42,7 @@ public class InstanceServiceImpl implements InstanceService {
     @Override
     public Mono<InstanceDetailsDbQueryDto> getInstanceDetails(Mono<String> id) {
         return id.transform(TypeConverter::monoStringToLong)
-                .transform(instances::allAboutOne)
-                .map(details -> {
-                    log.info("Instance details: {}, {}", details.getInstance_id(), details.getI_ip_id());
-                    return details;
-                });
+                .transform(instances::allAboutOne);
     }
 
     @Override
@@ -71,16 +68,14 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     private Mono<InstanceLinodeResponseDto> upsertCreator(InstanceLinodeResponseDto dto) {
-        log.info("Creating upsert: {}", dto.id());
         try {
             return subcomponentsService.createAll(dto)
-                    .log("subcomponents created!")
                     .flatMap(tuple -> {
                         log.info("subcomponents created address toString: address: {}, alert: {}", tuple.getT2(), tuple.getT1());
                         return Mono.just(Instance.builder()
-                                .alert(tuple.getT1().id())
-                                .address(tuple.getT2().id())
-                                .spec(tuple.getT3().id())
+                                .alert(tuple.getT1().getId())
+                                .address(tuple.getT2().getId())
+                                .spec(tuple.getT3().getId())
                                 .id(dto.id())
                                 .region(dto.region())
                                 .available(dto.backups().available())
@@ -94,7 +89,7 @@ public class InstanceServiceImpl implements InstanceService {
                                 .hypervisor(dto.hypervisor())
                                 .image(dto.image())
                                 .label(dto.label())
-                                .status(dto.status())
+                                .status(InstanceStatus.valueOf(dto.status()))
                                 .tags(dto.tags())
                                 .type(dto.type())
                                 .updated(dto.updated())
@@ -109,7 +104,6 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     private Mono<InstanceLinodeResponseDto> upsertUpdater(InstanceLinodeResponseDto update, InstanceDetailsDbQueryDto current) {
-        log.info("Upser updater: {} | {}, {}, {}, {}", update.id(), current.getInstance_id(), current.getI_ip_id(), current.getInstance_alert_id(), current.getI_spec_id());
         if (current.getInstance_id() == null
                 || current.getI_ip_id() == null
                 || current.getI_alert_id() == null

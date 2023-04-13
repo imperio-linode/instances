@@ -2,6 +2,7 @@ package com.bntech.imperio.instances.data.object;
 
 import com.bntech.imperio.instances.data.model.Instance;
 import com.bntech.imperio.instances.data.object.types.InstanceRequestType;
+import com.bntech.imperio.instances.data.object.types.InstanceStatus;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,7 +43,7 @@ public class InstanceCreateRequest extends InstanceRequest<InstanceCreateRequest
                 .hypervisor("")
                 .image(getImage())
                 .label(getLabel())
-                .status("Requesting")
+                .status(InstanceStatus.PROVISIONING)
                 .tags(List.of("", ""))
                 .type(getType())
                 .updated(Instant.now().toString())

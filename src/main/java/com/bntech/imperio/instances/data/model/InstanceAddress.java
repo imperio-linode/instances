@@ -3,6 +3,7 @@ package com.bntech.imperio.instances.data.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Builder;
+import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -14,8 +15,10 @@ import java.util.Objects;
 @Table(name = "instance_address")
 @JsonAutoDetect
 @Builder
+@Getter
 public final class InstanceAddress {
     @Column("i_ip_id")
+    @Id
     private final Integer id;
     @Column("i_ip_v4")
     private final List<InetAddress> instanceIpv4;
@@ -27,22 +30,6 @@ public final class InstanceAddress {
         this.id = id;
         this.instanceIpv4 = instanceIpv4;
         this.instanceIpv6 = instanceIpv6;
-    }
-
-    @Column("i_ip_id")
-    @Id
-    public Integer id() {
-        return id;
-    }
-
-    @Column("i_ip_v4")
-    public List<InetAddress>  instanceIpv4() {
-        return instanceIpv4;
-    }
-
-    @Column("i_ip_v6")
-    public InetAddress instanceIpv6() {
-        return instanceIpv6;
     }
 
     @Override

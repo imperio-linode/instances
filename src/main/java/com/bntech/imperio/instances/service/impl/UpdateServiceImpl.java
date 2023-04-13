@@ -43,7 +43,6 @@ public class UpdateServiceImpl implements UpdateService {
                 .uri(api_LINODE_INSTANCE)
                 .responseSingle((res, buf) -> buf
                         .map(buff -> {
-                            log.info("instanceService.inside req [ {} ][ {} ][ {} ][ {} ]", res.status(), res.fullPath(), res.uri(), res.method());
                             return buff.toString(US_ASCII);
                         })
                 )
@@ -51,7 +50,7 @@ public class UpdateServiceImpl implements UpdateService {
                     try {
                         ObjectMapper mapper = new ObjectMapper();
                         LinodeInstanceResponse requestBody = mapper.readValue(req, LinodeInstanceResponse.class);
-
+                        //todo: need to remove instances that were not returned
                         return instanceService.upsertLinodeData(requestBody.getData())
                                 .doOnNext(savedInstances -> log.info("Saved instances: {}", savedInstances))
                                 .then(Mono.just(req));

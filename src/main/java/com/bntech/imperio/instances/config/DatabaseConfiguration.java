@@ -48,7 +48,6 @@ public class DatabaseConfiguration {
         return R2dbcCustomConversions.of(dialect, converters);
     }
 
-
     @Bean
     public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator(new ClassPathResource(SQL_SCHEMA));
@@ -58,7 +57,6 @@ public class DatabaseConfiguration {
 
         return initializer;
     }
-
 
     @Bean
     public R2dbcDialect dialect(ConnectionFactory connectionFactory) {
@@ -154,5 +152,4 @@ public class DatabaseConfiguration {
             return source != null ? Duration.ofMillis(source) : null;
         }
     }
-
 }

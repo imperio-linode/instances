@@ -1,17 +1,16 @@
 package com.bntech.imperio.instances.service;
 
-import com.bntech.imperio.instances.data.dto.InstanceDetailsDbQueryDto;
 import com.bntech.imperio.instances.data.dto.InstanceLinodeResponseDto;
-import com.bntech.imperio.instances.data.model.*;
+import com.bntech.imperio.instances.data.model.InstanceAddress;
+import com.bntech.imperio.instances.data.model.InstanceAlert;
+import com.bntech.imperio.instances.data.model.InstanceSpec;
 import com.bntech.imperio.instances.data.model.repository.InstanceAddressRepo;
 import com.bntech.imperio.instances.data.model.repository.InstanceAlertRepo;
 import com.bntech.imperio.instances.data.model.repository.InstanceSpecRepo;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
-import reactor.util.function.Tuple4;
 
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -50,9 +49,4 @@ public interface InstanceSubcomponentsService {
                 .build());
     }
     Mono<InstanceAddress> createNewAddress(InstanceLinodeResponseDto dto) throws UnknownHostException;
-//    Mono<InstanceAlert> getAlertById(Mono<Integer> id);
-//
-//    Mono<InstanceAddress> getAddressById(Mono<Integer> id);
-//
-//    Mono<InstanceSpec> getSpecById(Mono<Integer> id);
 }

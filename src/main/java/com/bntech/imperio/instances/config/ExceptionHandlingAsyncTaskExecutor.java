@@ -55,7 +55,7 @@ public class ExceptionHandlingAsyncTaskExecutor implements AsyncTaskExecutor, In
     }
 
     protected void handle(Exception e) {
-        this.log.error("Caught async exception", e);
+        ExceptionHandlingAsyncTaskExecutor.log.error("Caught async exception", e);
     }
 
     public Future<?> submit(Runnable task) {
@@ -67,16 +67,14 @@ public class ExceptionHandlingAsyncTaskExecutor implements AsyncTaskExecutor, In
     }
 
     public void destroy() throws Exception {
-        if (this.executor instanceof DisposableBean) {
-            DisposableBean bean = (DisposableBean) this.executor;
+        if (this.executor instanceof DisposableBean bean) {
             bean.destroy();
         }
 
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (this.executor instanceof InitializingBean) {
-            InitializingBean bean = (InitializingBean) this.executor;
+        if (this.executor instanceof InitializingBean bean) {
             bean.afterPropertiesSet();
         }
     }

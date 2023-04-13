@@ -3,6 +3,7 @@ package com.bntech.imperio.instances.data.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Builder;
+import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -12,8 +13,10 @@ import java.util.Objects;
 @Table(name = "instance_spec")
 @JsonAutoDetect
 @Builder
+@Getter
 public final class InstanceSpec {
     @Column("i_spec_id")
+    @Id
     private final Integer id;
     @Column("i_spec_disk")
     private final Integer disk;
@@ -35,32 +38,6 @@ public final class InstanceSpec {
         this.memory = memory;
         this.transfer = transfer;
         this.vcpus = vcpus;
-    }
-
-    @Column("i_spec_id")
-    @Id
-    public Integer id() {
-        return id;
-    }
-
-    @Column("i_spec_disk")
-    public Integer disk() {
-        return disk;
-    }
-
-    @Column("i_spec_memory")
-    public Integer memory() {
-        return memory;
-    }
-
-    @Column("i_spec_transfer")
-    public Integer transfer() {
-        return transfer;
-    }
-
-    @Column("i_spec_vcpu")
-    public Integer vcpus() {
-        return vcpus;
     }
 
     @Override

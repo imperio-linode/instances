@@ -3,6 +3,7 @@ package com.bntech.imperio.instances.data.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Builder;
+import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -12,8 +13,10 @@ import java.util.Objects;
 @Table(name = "instance_alert")
 @JsonAutoDetect
 @Builder
+@Getter
 public final class InstanceAlert {
     @Column("i_alert_id")
+    @Id
     private final Integer id;
     @Column("i_alert_cpu")
     private final Integer cpu;
@@ -39,37 +42,6 @@ public final class InstanceAlert {
         this.network_in = network_in;
         this.network_out = network_out;
         this.transfer_quota = transfer_quota;
-    }
-
-    @Column("i_alert_id")
-    @Id
-    public Integer id() {
-        return id;
-    }
-
-    @Column("i_alert_cpu")
-    public Integer cpu() {
-        return cpu;
-    }
-
-    @Column("i_alert_io")
-    public Integer io() {
-        return io;
-    }
-
-    @Column("i_alert_network_in")
-    public Integer network_in() {
-        return network_in;
-    }
-
-    @Column("i_alert_network_out")
-    public Integer network_out() {
-        return network_out;
-    }
-
-    @Column("i_alert_transfer_quota")
-    public Integer transfer_quota() {
-        return transfer_quota;
     }
 
     @Override

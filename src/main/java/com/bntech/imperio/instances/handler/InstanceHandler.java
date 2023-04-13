@@ -1,6 +1,5 @@
 package com.bntech.imperio.instances.handler;
 
-
 import com.bntech.imperio.instances.data.object.InstanceCreateRequest;
 import com.bntech.imperio.instances.data.object.InstanceResponse;
 import com.bntech.imperio.instances.service.InstanceService;
@@ -66,12 +65,12 @@ public class InstanceHandler {
     }
 
     public Mono<ServerResponse> update(ServerRequest request) {
-        return updater.updateInstances().log()
+        return updater.updateInstances()
                 .transform(Util::stringServerResponse);
     }
 
     private Mono<ServerResponse> serverResponse(Mono<?> mono) {
-        return ServerResponse.status(200).contentType(MediaType.APPLICATION_JSON).body(mono, mono.getClass()).log("ServerResponse");
+        return ServerResponse.status(200).contentType(MediaType.APPLICATION_JSON).body(mono, mono.getClass());
     }
 
     private Mono<InstanceCreateRequest> bytesToObj(Mono<ByteBuf> buff) {

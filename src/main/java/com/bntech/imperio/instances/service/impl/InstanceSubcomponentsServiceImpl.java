@@ -2,18 +2,20 @@ package com.bntech.imperio.instances.service.impl;
 
 import com.bntech.imperio.instances.data.dto.InstanceDetailsDbQueryDto;
 import com.bntech.imperio.instances.data.dto.InstanceLinodeResponseDto;
-import com.bntech.imperio.instances.data.model.*;
+import com.bntech.imperio.instances.data.model.Instance;
+import com.bntech.imperio.instances.data.model.InstanceAddress;
+import com.bntech.imperio.instances.data.model.InstanceAlert;
+import com.bntech.imperio.instances.data.model.InstanceSpec;
 import com.bntech.imperio.instances.data.model.repository.InstanceAddressRepo;
 import com.bntech.imperio.instances.data.model.repository.InstanceAlertRepo;
-import com.bntech.imperio.instances.data.model.repository.InstanceRepo;
 import com.bntech.imperio.instances.data.model.repository.InstanceSpecRepo;
+import com.bntech.imperio.instances.data.object.types.InstanceStatus;
 import com.bntech.imperio.instances.service.InstanceSubcomponentsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
-import reactor.util.function.Tuple4;
 
 import java.net.UnknownHostException;
 
@@ -25,19 +27,16 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
     private final InstanceAddressRepo addresses;
     private final InstanceAlertRepo alerts;
     private final InstanceSpecRepo specs;
-    private final InstanceRepo instances;
 
     @Autowired
-    public InstanceSubcomponentsServiceImpl(InstanceAddressRepo addresses, InstanceAlertRepo alerts, InstanceSpecRepo specs, InstanceRepo instances) {
+    public InstanceSubcomponentsServiceImpl(InstanceAddressRepo addresses, InstanceAlertRepo alerts, InstanceSpecRepo specs) {
         this.addresses = addresses;
         this.alerts = alerts;
         this.specs = specs;
-        this.instances = instances;
     }
 
     @Override
     public Mono<Tuple3<InstanceAlert, InstanceAddress, InstanceSpec>> createAll(InstanceLinodeResponseDto dto) throws UnknownHostException {
-        log.info("CreateAll: " + dto);
         return Mono.zip(
                 createNewAlert(dto),
                 createNewAddress(dto),
@@ -58,9 +57,6 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
     public Mono<InstanceSpec> createNewSpec(InstanceLinodeResponseDto dto) {
         return InstanceSubcomponentsService.createNewSpec(dto, specs);
     }
-
-    //todo: Maybe in zip edit instance ids to match ones from zip.
-
 
     private InstanceAlert dtoToAlert(InstanceDetailsDbQueryDto instance) {
         return InstanceAlert.builder()
@@ -108,7 +104,7 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
                 .hypervisor(instance.getInstance_hypervisor())
                 .image(instance.getInstance_image())
                 .label(instance.getInstance_label())
-                .status(instance.getInstance_status())
+                .status(InstanceStatus.valueOf(instance.getInstance_status()))
                 .tags(instance.getInstance_tags())
                 .type(instance.getInstance_type())
                 .updated(instance.getInstance_updated())
@@ -116,38 +112,3 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
                 .build();
     }
 }
-
-//    private Mono<Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec>> allAboutOneToSubcomponents(InstanceDetailsDbQueryDto instance) {
-//        return Mono.zip(
-//                Mono.just(dtoToInstance(instance)),
-//                Mono.just(dtoToAlert(instance)),
-//                Mono.just(dtoToAddress(instance)),
-//                Mono.just(dtoToSpec(instance)));
-//    }
-
-//    private Mono<Instance> upsertInstanceSubscomponents(Tuple4<Instance, InstanceAlert, InstanceAddress, InstanceSpec> tuple) {
-//        log.info("updating upsert: " + tuple.getT1().getId());
-//        Mono<Instance> instance = instances.save(tuple.getT1());
-//        Mono<InstanceAlert> alert = alerts.save(tuple.getT2());
-//        Mono<InstanceAddress> address = addresses.save(tuple.getT3()).log("updateSubcomponentsAddress");
-//        Mono<InstanceSpec> spec = specs.save(tuple.getT4());
-//
-//        return Mono.zip(instance, alert, address, spec)
-//                .map(Tuple4::getT1)
-//                .log();
-//    }
-
-//    @Override
-//    public Mono<InstanceAlert> getAlertById(Mono<Integer> id) {
-//        return alerts.getById(id);
-//    }
-//
-//    @Override
-//    public Mono<InstanceAddress> getAddressById(Mono<Integer> id) {
-//        return addresses.getById(id);
-//    }
-//
-//    @Override
-//    public Mono<InstanceSpec> getSpecById(Mono<Integer> id) {
-//        return specs.getById(id);
-//    }

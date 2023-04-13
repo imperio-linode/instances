@@ -1,15 +1,17 @@
 package com.bntech.imperio.instances;
 
-
 import com.bntech.imperio.instances.handler.ErrorHandler;
 import com.bntech.imperio.instances.handler.InstanceHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
 
-import static com.bntech.imperio.instances.config.Constants.*;
-import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+import static com.bntech.imperio.instances.config.Constants.api_ADD;
+import static com.bntech.imperio.instances.config.Constants.api_HELLO;
+import static com.bntech.imperio.instances.config.Constants.api_ID;
+import static com.bntech.imperio.instances.config.Constants.api_UPDATE_ENGINES;
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
+import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 
