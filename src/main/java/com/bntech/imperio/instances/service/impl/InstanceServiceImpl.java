@@ -64,71 +64,57 @@ public class InstanceServiceImpl implements InstanceService {
                 //todo: rework to make map and insert all instead of few inserts
                 .flatMap(dto -> {
                     log.info("Upserting instance: {}", dto.id());
-                    try {
-                        return getInstanceDetails(Mono.just(dto.id().toString()))
-                                .flatMap(fromDatabase -> upsertUpdater(dto, fromDatabase))
-                                .switchIfEmpty(this.upsertCreator(dto));
-                    } catch (UnknownHostException e) {
-                        return Flux.error(new RuntimeException(e));
-                    }
+                    return getInstanceDetails(Mono.just(dto.id().toString()))
+                            .flatMap(fromDatabase -> upsertUpdater(dto, fromDatabase))
+                            .switchIfEmpty(this.upsertCreator(dto));
                 });
     }
 
-    private Mono<InstanceLinodeResponseDto> upsertCreator(InstanceLinodeResponseDto dto) throws UnknownHostException {
+    private Mono<InstanceLinodeResponseDto> upsertCreator(InstanceLinodeResponseDto dto) {
         log.info("Creating upsert: {}", dto.id());
-        return subcomponentsService.createAll(dto)
-                .log("subcomponents created")
-                .flatMap(tuple -> {
-                    log.info("subcomponents created address toString: address: {}, alert: {}", tuple.getT2(), tuple.getT1());
-                    return Mono.just(Instance.builder()
-                            .alert(tuple.getT1().id())
-                            .address(tuple.getT2().id())
-                            .spec(tuple.getT3().id())
-                            .id(dto.id())
-                            .region(dto.region())
-                            .available(dto.backups().available())
-                            .enabled(dto.backups().enabled())
-                            .last_successful(dto.backups().last_successful())
-                            .backup_day(dto.backups().schedule().day())
-                            .window(dto.backups().schedule().window())
-                            .created(dto.created())
-                            .group(dto.group())
-                            .host_uuid(dto.host_uuid())
-                            .hypervisor(dto.hypervisor())
-                            .image(dto.image())
-                            .label(dto.label())
-                            .status(dto.status())
-                            .tags(dto.tags())
-                            .type(dto.type())
-                            .updated(dto.updated())
-                            .watchdog_enabled(dto.watchdog_enabled())
-                            .build());
-                })
-                .flatMap(instances::save)
-                .then(Mono.just(dto));
+        try {
+            return subcomponentsService.createAll(dto)
+                    .log("subcomponents created!")
+                    .flatMap(tuple -> {
+                        log.info("subcomponents created address toString: address: {}, alert: {}", tuple.getT2(), tuple.getT1());
+                        return Mono.just(Instance.builder()
+                                .alert(tuple.getT1().id())
+                                .address(tuple.getT2().id())
+                                .spec(tuple.getT3().id())
+                                .id(dto.id())
+                                .region(dto.region())
+                                .available(dto.backups().available())
+                                .enabled(dto.backups().enabled())
+                                .last_successful(dto.backups().last_successful())
+                                .backup_day(dto.backups().schedule().day())
+                                .window(dto.backups().schedule().window())
+                                .created(dto.created())
+                                .group(dto.group())
+                                .host_uuid(dto.host_uuid())
+                                .hypervisor(dto.hypervisor())
+                                .image(dto.image())
+                                .label(dto.label())
+                                .status(dto.status())
+                                .tags(dto.tags())
+                                .type(dto.type())
+                                .updated(dto.updated())
+                                .watchdog_enabled(dto.watchdog_enabled())
+                                .build());
+                    })
+                    .flatMap(instances::save)
+                    .then(Mono.just(dto));
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Mono<InstanceLinodeResponseDto> upsertUpdater(InstanceLinodeResponseDto update, InstanceDetailsDbQueryDto current) {
-        log.info("Upser updater: {}, {}", update.id(), current.getInstance_id());
-
-        if (current.getInstance_id() == null) {
+        log.info("Upser updater: {} | {}, {}, {}, {}", update.id(), current.getInstance_id(), current.getI_ip_id(), current.getInstance_alert_id(), current.getI_spec_id());
+        if (current.getInstance_id() == null
+                || current.getI_ip_id() == null
+                || current.getI_alert_id() == null
+                || current.getI_spec_id() == null) {
             return Mono.empty();
-        }
-
-        if (current.getInstance_address_id() == null && current.getI_ip_id() == null) {
-            try {
-                subcomponentsService.createNewAddress(update)
-                        .map(address -> {
-                            current.setInstance_address_id(address.id());
-                            return address;
-                        });
-            } catch (UnknownHostException e) {
-                return Mono.error(new RuntimeException(e));
-            }
-        } else if (current.getInstance_address_id() == null && current.getI_ip_id() != null) {
-            current.setInstance_address_id(current.getI_ip_id());
-        } else {
-
         }
 
         return Mono.just(update);
