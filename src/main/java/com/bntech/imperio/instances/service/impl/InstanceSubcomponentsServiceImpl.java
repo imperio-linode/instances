@@ -104,7 +104,7 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
                 .hypervisor(instance.getInstance_hypervisor())
                 .image(instance.getInstance_image())
                 .label(instance.getInstance_label())
-                .status(InstanceStatus.valueOf(instance.getInstance_status()))
+                .status(InstanceStatus.valueOf(instance.getInstance_status().toUpperCase()))
                 .tags(instance.getInstance_tags())
                 .type(instance.getInstance_type())
                 .updated(instance.getInstance_updated())

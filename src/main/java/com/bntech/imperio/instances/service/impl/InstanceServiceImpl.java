@@ -89,7 +89,7 @@ public class InstanceServiceImpl implements InstanceService {
                                 .hypervisor(dto.hypervisor())
                                 .image(dto.image())
                                 .label(dto.label())
-                                .status(InstanceStatus.valueOf(dto.status()))
+                                .status(InstanceStatus.valueOf(dto.status().toUpperCase()))
                                 .tags(dto.tags())
                                 .type(dto.type())
                                 .updated(dto.updated())

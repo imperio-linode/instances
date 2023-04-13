@@ -84,7 +84,7 @@ public class Instance {
         this.hypervisor = hypervisor;
         this.image = image;
         this.label = label;
-        this.status = InstanceStatus.valueOf(status);
+        this.status = InstanceStatus.valueOf(status.toUpperCase());
         this.tags = tags;
         this.type = type;
         this.updated = updated;
