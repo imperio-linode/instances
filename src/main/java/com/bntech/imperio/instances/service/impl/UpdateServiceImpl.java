@@ -36,7 +36,7 @@ public class UpdateServiceImpl implements UpdateService {
     }
 
     @Override
-    public Mono<String> upsertInstances() {
+    public Mono<String> updateInstances() {
         return linodeApi
                 .headers(headers -> headers.set("Authorization", "Bearer " + linodeToken).add(HttpHeaderNames.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
                 .get()
@@ -51,9 +51,8 @@ public class UpdateServiceImpl implements UpdateService {
                     try {
                         ObjectMapper mapper = new ObjectMapper();
                         LinodeInstanceResponse requestBody = mapper.readValue(req, LinodeInstanceResponse.class);
-                        //until here correct
-                        return instanceService
-                                .upsertLinodeData(requestBody.getData())
+
+                        return instanceService.upsertLinodeData(requestBody.getData())
                                 .doOnNext(savedInstances -> log.info("Saved instances: {}", savedInstances))
                                 .then(Mono.just(req));
                     } catch (JsonProcessingException e) {

@@ -66,7 +66,7 @@ public class InstanceHandler {
     }
 
     public Mono<ServerResponse> update(ServerRequest request) {
-        return updater.upsertInstances().log()
+        return updater.updateInstances().log()
                 .transform(Util::stringServerResponse);
     }
 

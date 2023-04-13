@@ -18,7 +18,7 @@ public interface InstanceService {
 
     Mono<ServerResponse> handleInstanceCreateRequest(Mono<InstanceCreateRequest> requestMono);
 
-    Flux<Instance> upsertLinodeData(List<InstanceLinodeResponseDto> dto);
+    Flux<InstanceLinodeResponseDto> upsertLinodeData(List<InstanceLinodeResponseDto> dto);
 
     Mono<InstanceLinodeResponseDto> queryToResponse(Mono<InstanceDetailsDbQueryDto> dto);
 

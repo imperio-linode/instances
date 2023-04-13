@@ -39,9 +39,24 @@ public class InstanceSubcomponentsServiceImpl implements InstanceSubcomponentsSe
     public Mono<Tuple3<InstanceAlert, InstanceAddress, InstanceSpec>> createAll(InstanceLinodeResponseDto dto) throws UnknownHostException {
         log.info("CreateAll: " + dto);
         return Mono.zip(
-                InstanceSubcomponentsService.createNewAlert(dto, alerts),
-                InstanceSubcomponentsService.createNewAddress(dto, addresses),
-                InstanceSubcomponentsService.createNewSpec(dto, specs));
+                createNewAlert(dto),
+                createNewAddress(dto),
+                createNewSpec(dto));
+    }
+
+    @Override
+    public Mono<InstanceAlert> createNewAlert(InstanceLinodeResponseDto dto) {
+        return InstanceSubcomponentsService.createNewAlert(dto, alerts);
+    }
+
+    @Override
+    public Mono<InstanceAddress> createNewAddress(InstanceLinodeResponseDto dto) throws UnknownHostException {
+        return InstanceSubcomponentsService.createNewAddress(dto, addresses);
+    }
+
+    @Override
+    public Mono<InstanceSpec> createNewSpec(InstanceLinodeResponseDto dto) {
+        return InstanceSubcomponentsService.createNewSpec(dto, specs);
     }
 
     //todo: Maybe in zip edit instance ids to match ones from zip.

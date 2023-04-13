@@ -32,6 +32,7 @@ public interface InstanceSubcomponentsService {
                 .transfer_quota(dto.alerts().transfer_quota())
                 .build());
     }
+    Mono<InstanceAlert> createNewAlert(InstanceLinodeResponseDto dto);
 
     static Mono<InstanceSpec> createNewSpec(InstanceLinodeResponseDto dto, InstanceSpecRepo specs) {
         return specs.save(InstanceSpec.builder()
@@ -40,6 +41,7 @@ public interface InstanceSubcomponentsService {
                 .memory(dto.specs().memory())
                 .build());
     }
+    Mono<InstanceSpec> createNewSpec(InstanceLinodeResponseDto dto);
 
     static Mono<InstanceAddress> createNewAddress(InstanceLinodeResponseDto dto, InstanceAddressRepo addresses) throws UnknownHostException {
         return addresses.save(InstanceAddress.builder()
@@ -47,7 +49,7 @@ public interface InstanceSubcomponentsService {
                 .instanceIpv4(stringListToInetList(dto.ipv4()))
                 .build());
     }
-
+    Mono<InstanceAddress> createNewAddress(InstanceLinodeResponseDto dto) throws UnknownHostException;
 //    Mono<InstanceAlert> getAlertById(Mono<Integer> id);
 //
 //    Mono<InstanceAddress> getAddressById(Mono<Integer> id);

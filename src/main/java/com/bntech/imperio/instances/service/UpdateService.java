@@ -5,5 +5,5 @@ import reactor.core.publisher.Mono;
 
 @Service
 public interface UpdateService {
-    Mono<String> upsertInstances();
+    Mono<String> updateInstances();
 }
