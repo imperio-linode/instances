@@ -30,6 +30,7 @@ public final class InstanceAddress {
     }
 
     @Column("i_ip_id")
+    @Id
     public Integer id() {
         return id;
     }

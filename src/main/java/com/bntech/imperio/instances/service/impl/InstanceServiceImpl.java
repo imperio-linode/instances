@@ -40,7 +40,6 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Override
     public Mono<InstanceDetailsDbQueryDto> getInstanceDetails(Mono<String> id) {
-        log.info("Getting instance details: {}", id);
         return id.transform(TypeConverter::monoStringToLong)
                 .transform(instances::allAboutOne)
                 .map(details -> {
@@ -110,6 +109,8 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     private Mono<InstanceLinodeResponseDto> upsertUpdater(InstanceLinodeResponseDto update, InstanceDetailsDbQueryDto current) {
+        log.info("Upser updater: {}, {}", update.id(), current.getInstance_id());
+
         if (current.getInstance_id() == null) {
             return Mono.empty();
         }
