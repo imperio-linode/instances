@@ -50,10 +50,11 @@ public class InstanceHandler {
                 .transform(instanceService::queryToResponse)
                 .map(dto -> new InstanceResponse(List.of(dto)))
                 .transform(this::serverResponse)
+                .log()
                 .onErrorResume(errorHandler::throwableError);
     }
 
-    public Mono<ServerResponse> handleDeploy(ServerRequest request) {
+    public Mono<ServerResponse> instanceDeploy(ServerRequest request) {
         return request.bodyToMono(ByteBuf.class)
                 .transform(this::bytesToObj)
                 .map(response -> {
@@ -66,6 +67,13 @@ public class InstanceHandler {
 
     public Mono<ServerResponse> update(ServerRequest request) {
         return updater.updateInstances()
+                .transform(Util::stringServerResponse);
+    }
+
+    public Mono<ServerResponse> instanceDelete(ServerRequest request) {
+        return request.pathVariable("id")
+                .transform(Mono::just)
+                .transform(instanceService::deleteInstance)
                 .transform(Util::stringServerResponse);
     }
 

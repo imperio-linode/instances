@@ -2,8 +2,8 @@ package com.bntech.imperio.instances.service.impl;
 
 import com.bntech.imperio.instances.data.dto.InstanceDetailsDbQueryDto;
 import com.bntech.imperio.instances.data.dto.InstanceLinodeResponseDto;
-import com.bntech.imperio.instances.data.model.*;
-import com.bntech.imperio.instances.data.model.repository.*;
+import com.bntech.imperio.instances.data.model.Instance;
+import com.bntech.imperio.instances.data.model.repository.InstanceRepo;
 import com.bntech.imperio.instances.data.object.InstanceCreateRequest;
 import com.bntech.imperio.instances.data.object.types.InstanceStatus;
 import com.bntech.imperio.instances.service.InstanceService;
@@ -94,7 +94,8 @@ public class InstanceServiceImpl implements InstanceService {
                                 .type(dto.type())
                                 .updated(dto.updated())
                                 .watchdog_enabled(dto.watchdog_enabled())
-                                .build());
+                                .build()
+                                .newInstance());
                     })
                     .flatMap(instances::save)
                     .then(Mono.just(dto));
@@ -113,6 +114,13 @@ public class InstanceServiceImpl implements InstanceService {
 
         return Mono.just(update);
     }
+
+    @Override
+    public Mono<String> deleteInstance(Mono<String> id) {
+        return instances.deleteById(id.transform(TypeConverter::monoStringToLong))
+                .then(Mono.just("Deleted: " + id));
+    }
+
 
     @Override
     public Mono<InstanceLinodeResponseDto> queryToResponse(Mono<InstanceDetailsDbQueryDto> dto) {

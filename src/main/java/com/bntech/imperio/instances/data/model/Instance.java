@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -21,9 +24,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Instance {
+public class Instance implements Persistable<Long> {
     //todo: We should add @Id here but after performing https://stackoverflow.com/a/62427578.
+    //todo; TOP PRIO. Either delete or add works due to it.
     @Column("instance_id")
+    @Id
     private Long id;
     @Column("instance_region")
     private String region;
@@ -65,6 +70,8 @@ public class Instance {
     private String updated;
     @Column("instance_watchdog_enable")
     private Boolean watchdog_enabled;
+    @Transient
+    private Boolean newInstance;
 
     @JsonCreator
     public Instance(Long id, String region, Integer alert, Integer address, Integer spec, Boolean available, Boolean enabled, Instant last_successful, Integer backup_day, String window, String created, String group, String host_uuid, String hypervisor, String image, String label, String status, List<String> tags, String type, String updated, Boolean watchdog_enabled) {
@@ -94,6 +101,17 @@ public class Instance {
     @Override
     public String toString() {
         return String.format("Instance: %s, %s, %s", this.id, this.label, this.image);
+    }
+
+    @Override
+    @Transient
+    public boolean isNew() {
+        return this.newInstance || id == null;
+    }
+
+    public Instance newInstance() {
+        this.newInstance = true;
+        return this;
     }
 
 }
