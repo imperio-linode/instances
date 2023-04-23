@@ -32,12 +32,17 @@ spec:
             - name: pg_user
               value: postgres
             - name: pg_ip
-              value: 10.43.146.241
+              value: 10.43.121.163
             - name: tls_pass
               valueFrom:
                 secretKeyRef:
                   name: imperio-store
                   key: spring
+            - name: linode_token
+              valueFrom:
+                secretKeyRef:
+                  name: linode-token
+                  key: linode-token
 ---
 apiVersion: v1
 kind: Service

@@ -47,6 +47,7 @@ public class InstanceCreateRequest extends InstanceRequest<InstanceCreateRequest
                 .tags(List.of("", ""))
                 .type(getType())
                 .updated(Instant.now().toString())
-                .watchdog_enabled(false).build();
+                .watchdog_enabled(false)
+                .build().newInstance();
     }
 }

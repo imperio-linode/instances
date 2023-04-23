@@ -59,7 +59,6 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
     Mono<ServerResponse> linodeServicesDeploySingleEngine(Mono<InstanceCreateRequest> instance) {
         return instance.flatMap(details -> {
             try {
-                log.info("instanceService req: {}", Unpooled.wrappedBuffer(mapper.writeValueAsBytes(details)).toString(US_ASCII));
                 return linodeServices
                         .headers(headers -> headers.set(HttpHeaderNames.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
                         .post()

@@ -3,6 +3,7 @@ package com.bntech.imperio.instances.data.model;
 import com.bntech.imperio.instances.data.object.types.InstanceStatus;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,28 +34,39 @@ public class Instance implements Persistable<Long> {
     @Column("instance_region")
     private String region;
     @Column("instance_alert_id")
+    @Nullable
     private Integer alert;
     @Column("instance_address_id")
+    @Nullable
     private Integer address;
     @Column("instance_specs_id")
+    @Nullable
     private Integer spec;
     @Column("instance_backup_available")
+    @Nullable
     private Boolean available;
     @Column("instance_backup_enabled")
+    @Nullable
     private Boolean enabled;
     @Column("instance_backup_last_successful")
+    @Nullable
     private Instant last_successful;
     @Column("instance_backup_day")
+    @Nullable
     private Integer backup_day;
     @Column("instance_backup_window")
+    @Nullable
     private String window;
     @Column("instance_created")
     private String created;
     @Column("instance_group")
+    @Nullable
     private String group;
     @Column("instance_host_uuid")
+    @Nullable
     private String host_uuid;
     @Column("instance_hypervisor")
+    @Nullable
     private String hypervisor;
     @Column("instance_image")
     private String image;
@@ -63,6 +75,7 @@ public class Instance implements Persistable<Long> {
     @Column("instance_status")
     private InstanceStatus status;
     @Column("instance_tags")
+    @Nullable
     private List<String> tags;
     @Column("instance_type")
     private String type;
@@ -74,7 +87,7 @@ public class Instance implements Persistable<Long> {
     private Boolean newInstance;
 
     @JsonCreator
-    public Instance(Long id, String region, Integer alert, Integer address, Integer spec, Boolean available, Boolean enabled, Instant last_successful, Integer backup_day, String window, String created, String group, String host_uuid, String hypervisor, String image, String label, String status, List<String> tags, String type, String updated, Boolean watchdog_enabled) {
+    public Instance(Long id, String region, @Nullable Integer alert, @Nullable Integer address, @Nullable Integer spec, @Nullable Boolean available, @Nullable Boolean enabled, @Nullable Instant last_successful, @Nullable Integer backup_day, @Nullable String window, String created, @Nullable String group, @Nullable String host_uuid, @Nullable String hypervisor, String image, String label, String status, @Nullable List<String> tags, String type, String updated, Boolean watchdog_enabled) {
         this.id = id;
         this.region = region;
         this.alert = alert;

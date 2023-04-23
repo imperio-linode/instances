@@ -18,7 +18,7 @@ public class DataRouter {
     public static RouterFunction<?> doRoute(final InstanceHandler instanceHandler, final ErrorHandler errorHandler) {
         return route(GET(api_ID),
                 instanceHandler::instanceDetails
-        ).andRoute(POST(api_ADD),
+        ).andRoute(POST(api_CREATE_ENGINE),
                 instanceHandler::instanceDeploy
         ).andRoute(GET(api_HELLO),
                 instanceHandler::hello
