@@ -1,6 +1,5 @@
 package com.bntech.imperio.instances.service.impl;
 
-import com.bntech.imperio.instances.data.model.Instance;
 import com.bntech.imperio.instances.data.model.repository.InstanceRepo;
 import com.bntech.imperio.instances.data.object.InstanceCreateRequest;
 import com.bntech.imperio.instances.service.SingleInstanceService;
@@ -20,7 +19,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClient;
 import reactor.util.function.Tuples;
 
@@ -58,13 +56,12 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
     }
 
     Mono<ServerResponse> linodeServicesDeploySingleEngine(Mono<InstanceCreateRequest> instance) {
-        return instance.flatMap(details -> {
-            try {
-                return linodeServices
+        return instance.flatMap(details -> Mono.fromCallable(() -> mapper.writeValueAsBytes(details))
+                .flatMap(bytes -> linodeServices
                         .headers(headers -> headers.set(HttpHeaderNames.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
                         .post()
                         .uri(api_CREATE_ENGINE)
-                        .send(Mono.just(Unpooled.wrappedBuffer(mapper.writeValueAsBytes(details))))
+                        .send(Mono.just(Unpooled.wrappedBuffer(bytes)))
                         .responseSingle((res, buf) -> buf
                                 .map(buff -> {
                                     log.info("instanceService.inside req [ {} ][ {} ][ {} ][ {} ]",
@@ -72,31 +69,20 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
 
                                     return Tuples.of(res.status(), buff.toString(US_ASCII));
                                 }))
-                        .flatMap(responseTuple -> {
-                            HttpStatus status = HttpStatus.valueOf(responseTuple.getT1().code());
-                            String body = responseTuple.getT2();
-                            log.info("Check if error: {}, {}", status, body);
-                            return Util.stringServerResponse(body, status)
-                                    .flatMap(response -> {
-                                        if (status == HttpStatus.OK) {
-                                            return instances.save(details.toInstance()).then(Mono.just(response));
-                                        } else {
-                                            return Mono.just(response);
-                                        }
-                                    });
-                        })
-                        .onErrorResume(ex -> {
-                            if (ex instanceof ServerWebInputException swie) {
-                                return ServerResponse.badRequest().body(BodyInserters.fromValue(swie.getMessage()));
+                        .flatMap(Util::stringServerResponse)
+                        .flatMap(response -> {
+                            if (response.statusCode() == HttpStatus.OK) {
+                                return instances.save(details.toInstance()).then(Mono.just(response));
                             } else {
-                                return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .body(BodyInserters.fromValue("An error occurred while processing the instance create request."));
+                                return Mono.just(response);
                             }
-                        });
-            } catch (JsonProcessingException e) {
-                return Mono.error(new ServerWebInputException("Error serializing request body."));
-            }
-        });
+                        })
+                        .onErrorResume(ServerWebInputException.class, swie -> ServerResponse
+                                .status(swie.getStatusCode())
+                                .body(BodyInserters.fromValue(Objects.requireNonNull(swie.getReason()))))
+                        .onErrorResume(JsonProcessingException.class, e -> Mono.error(new RuntimeException("Error serializing request body.", e)))
+                        .onErrorResume(ex -> ServerResponse
+                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(BodyInserters.fromValue("An error occurred while processing the instance create request.")))));
     }
 }
