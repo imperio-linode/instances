@@ -17,14 +17,14 @@ public class DataRouter {
     @Bean
     public static RouterFunction<?> doRoute(final InstanceHandler instanceHandler, final ErrorHandler errorHandler) {
         return route(GET(api_ID),
-                instanceHandler::instanceDetails
+                instanceHandler::details
         ).andRoute(POST(api_CREATE_ENGINE),
-                instanceHandler::instanceDeploy
+                instanceHandler::deploy
         ).andRoute(GET(api_HELLO),
                 instanceHandler::hello
         ).andRoute(GET(api_UPDATE_DB),
                 instanceHandler::update
         ).andRoute(DELETE(api_ID),
-                instanceHandler::instanceDelete);
+                instanceHandler::delete);
     }
 }

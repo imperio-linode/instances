@@ -43,18 +43,18 @@ public class InstanceHandler {
                 .body(BodyInserters.fromValue("Hello"));
     }
 
-    public Mono<ServerResponse> instanceDetails(ServerRequest request) {
+    public Mono<ServerResponse> details(ServerRequest request) {
         return request.pathVariable("id")
                 .transform(Mono::just)
                 .transform(instanceService::getInstanceDetails)
                 .transform(instanceService::queryToResponse)
                 .map(dto -> new InstanceResponse(List.of(dto)))
-                .transform(this::serverResponse)
+                .transform(this::jsonAndOk)
                 .log()
                 .onErrorResume(errorHandler::throwableError);
     }
 
-    public Mono<ServerResponse> instanceDeploy(ServerRequest request) {
+    public Mono<ServerResponse> deploy(ServerRequest request) {
         return request.bodyToMono(ByteBuf.class)
                 .transform(this::bytesToObj)
                 .map(response -> {
@@ -70,14 +70,14 @@ public class InstanceHandler {
                 .transform(Util::stringServerResponse);
     }
 
-    public Mono<ServerResponse> instanceDelete(ServerRequest request) {
+    public Mono<ServerResponse> delete(ServerRequest request) {
         return request.pathVariable("id")
                 .transform(Mono::just)
                 .transform(instanceService::deleteInstance)
                 .transform(Util::stringServerResponse);
     }
 
-    private Mono<ServerResponse> serverResponse(Mono<?> mono) {
+    private Mono<ServerResponse> jsonAndOk(Mono<?> mono) {
         return ServerResponse.status(200).contentType(MediaType.APPLICATION_JSON).body(mono, mono.getClass());
     }
 
