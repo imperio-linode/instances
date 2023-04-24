@@ -76,10 +76,15 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
                             HttpStatus status = HttpStatus.valueOf(responseTuple.getT1().code());
                             String body = responseTuple.getT2();
                             log.info("Check if error: {}, {}", status, body);
-                            Instance i = details.toInstance();
-                            return Util.stringServerResponse(body, status);
+                            return Util.stringServerResponse(body, status)
+                                    .flatMap(response -> {
+                                        if (status == HttpStatus.OK) {
+                                            return instances.save(details.toInstance()).then(Mono.just(response));
+                                        } else {
+                                            return Mono.just(response);
+                                        }
+                                    });
                         })
-                        .flatMap(response -> instances.save(details.toInstance()).then(Mono.just(response)))
                         .onErrorResume(ex -> {
                             if (ex instanceof ServerWebInputException swie) {
                                 return ServerResponse.badRequest().body(BodyInserters.fromValue(swie.getMessage()));
