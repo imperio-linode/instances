@@ -72,9 +72,7 @@ public class InstanceHandler {
 
     public Mono<ServerResponse> delete(ServerRequest request) {
         return request.pathVariable("id")
-                .transform(Mono::just)
-                .transform(instanceService::deleteInstance)
-                .transform(Util::stringServerResponse);
+                .transform(instanceService::deleteInstance);
     }
 
     private Mono<ServerResponse> jsonAndOk(Mono<?> mono) {

@@ -21,5 +21,5 @@ public interface InstanceService {
 
     Mono<InstanceLinodeResponseDto> queryToResponse(Mono<InstanceDetailsDbQueryDto> dto);
 
-    Mono<String> deleteInstance(Mono<String> id);
+    Mono<ServerResponse> deleteInstance(String id);
 }

@@ -119,9 +119,8 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @Override
-    public Mono<String> deleteInstance(Mono<String> id) {
-        return instances.deleteById(id.transform(TypeConverter::monoStringToLong))
-                .then(Mono.just("Deleted: " + id));
+    public Mono<ServerResponse> deleteInstance(String id) {
+        return singleInstances.delete(Mono.just(Long.valueOf(id)));
     }
 
 

@@ -17,6 +17,7 @@ public class Util {
         return instanceDetails
                 .flatMap(userResponse -> {
                     log.info("stringServerResponse: {} ", userResponse);
+
                     return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(Mono.just(userResponse), String.class);
                 });
     }

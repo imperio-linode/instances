@@ -8,5 +8,6 @@ import reactor.core.publisher.Mono;
 @Service
 public interface SingleInstanceService {
     Mono<ServerResponse> deploy(InstanceCreateRequest instanceDetails);
+    Mono<ServerResponse> delete(Mono<Long> id);
 
 }
