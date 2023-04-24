@@ -61,6 +61,7 @@ public class InstanceServiceImpl implements InstanceService {
                 //todo: rework to make map and insert all instead of few inserts
                 .flatMap(dto -> {
                     log.info("Upserting instance: {}", dto.id());
+
                     return getInstanceDetails(Mono.just(dto.id().toString()))
                             .flatMap(fromDatabase -> upsertUpdater(dto, fromDatabase))
                             .switchIfEmpty(this.upsertCreator(dto));
@@ -72,6 +73,7 @@ public class InstanceServiceImpl implements InstanceService {
             return subcomponentsService.createAll(dto)
                     .flatMap(tuple -> {
                         log.info("subcomponents created address toString: address: {}, alert: {}", tuple.getT2(), tuple.getT1());
+
                         return Mono.just(Instance.builder()
                                 .alert(tuple.getT1().getId())
                                 .address(tuple.getT2().getId())
@@ -109,6 +111,7 @@ public class InstanceServiceImpl implements InstanceService {
                 || current.getI_ip_id() == null
                 || current.getI_alert_id() == null
                 || current.getI_spec_id() == null) {
+
             return Mono.empty();
         }
 

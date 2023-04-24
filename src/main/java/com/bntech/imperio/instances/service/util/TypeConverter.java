@@ -16,7 +16,8 @@ public class TypeConverter {
     }
 
     public static Mono<Long> fluxStringToLong(Flux<String> string) {
-        return string.map(Long::parseLong).collectList().transform(listMono -> listMono.map(longs -> longs.get(0)));
+        return string.map(Long::parseLong).collectList()
+                .transform(listMono -> listMono.map(longs -> longs.get(0)));
     }
 
     public static List<String> inetListToStringList(List<InetAddress> inets) {
@@ -30,6 +31,7 @@ public class TypeConverter {
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
+
             return null;
         }).toList();
 

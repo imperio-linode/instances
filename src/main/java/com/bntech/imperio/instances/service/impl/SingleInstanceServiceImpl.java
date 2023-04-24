@@ -67,15 +67,16 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
                         .responseSingle((res, buf) -> buf
                                 .map(buff -> {
                                     log.info("instanceService.inside req [ {} ][ {} ][ {} ][ {} ]", res.status(), res.fullPath(), res.uri(), res.method());
+
                                     return buff.toString(US_ASCII);
-                                })
-                        )
+                                }))
                         .transform(Util::stringServerResponse)
                         .flatMap(response -> {
+                            log.info("Check if error: {}", response);
                             Instance i = details.toInstance();
-                            return Mono.fromCallable(() -> instances.save(i))
-                                    .publishOn(Schedulers.fromExecutor(taskExecutor))
-                                    .then(Mono.just(response));
+                            log.info("instance to save details: {}, {}", i.getRegion(), i.getStatus());
+
+                            return instances.save(i).then(Mono.just(response));
                         })
                         .onErrorResume(ex -> {
                             if (ex instanceof ServerWebInputException swie) {
@@ -86,7 +87,6 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
                                         .body(BodyInserters.fromValue("An error occurred while processing the instance create request."));
                             }
                         });
-
             } catch (JsonProcessingException e) {
                 return Mono.error(new ServerWebInputException("Error serializing request body."));
             }
