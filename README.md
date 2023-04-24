@@ -2,7 +2,7 @@
 
 ### Aim
 
-Imperio Instances is service meant to process and manage instances object related tasks. It manages gateway-forwarded requests about Instances, manages its database and procs terraform deployments in [Imperio Linode Services](../linode-services).
+Imperio Instances is service meant to process and manage instances object related tasks. It manages gateway-forwarded requests about Instances, manages its database and procs deployments in [Imperio Linode Services](../linode-services).
 
 ### Functional Testing
 Since this is a web application, it is best tested in cloud. Testing locally is viable, but requires path parameters to be changed.
