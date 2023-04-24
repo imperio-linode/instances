@@ -22,6 +22,7 @@ import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClient;
+import reactor.util.function.Tuples;
 
 import java.util.Objects;
 
@@ -66,18 +67,19 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
                         .send(Mono.just(Unpooled.wrappedBuffer(mapper.writeValueAsBytes(details))))
                         .responseSingle((res, buf) -> buf
                                 .map(buff -> {
-                                    log.info("instanceService.inside req [ {} ][ {} ][ {} ][ {} ]", res.status(), res.fullPath(), res.uri(), res.method());
+                                    log.info("instanceService.inside req [ {} ][ {} ][ {} ][ {} ]",
+                                            res.status(), res.fullPath(), res.uri(), res.method());
 
-                                    return buff.toString(US_ASCII);
+                                    return Tuples.of(res.status(), buff.toString(US_ASCII));
                                 }))
-                        .transform(Util::stringServerResponse)
-                        .flatMap(response -> {
-                            log.info("Check if error: {}", response);
+                        .flatMap(responseTuple -> {
+                            HttpStatus status = HttpStatus.valueOf(responseTuple.getT1().code());
+                            String body = responseTuple.getT2();
+                            log.info("Check if error: {}, {}", status, body);
                             Instance i = details.toInstance();
-                            log.info("instance to save details: {}, {}", i.getRegion(), i.getStatus());
-
-                            return instances.save(i).then(Mono.just(response));
+                            return Util.stringServerResponse(body, status);
                         })
+                        .flatMap(response -> instances.save(details.toInstance()).then(Mono.just(response)))
                         .onErrorResume(ex -> {
                             if (ex instanceof ServerWebInputException swie) {
                                 return ServerResponse.badRequest().body(BodyInserters.fromValue(swie.getMessage()));
