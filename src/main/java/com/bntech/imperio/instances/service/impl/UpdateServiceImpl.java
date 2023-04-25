@@ -42,9 +42,7 @@ public class UpdateServiceImpl implements UpdateService {
                 .get()
                 .uri(api_LINODE_INSTANCE)
                 .responseSingle((res, buf) -> buf
-                        .map(buff -> {
-                            return buff.toString(US_ASCII);
-                        })
+                        .map(buff -> buff.toString(US_ASCII))
                 )
                 .flatMap(req -> {
                     try {

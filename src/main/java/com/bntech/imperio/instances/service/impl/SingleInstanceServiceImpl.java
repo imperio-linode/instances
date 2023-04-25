@@ -26,8 +26,7 @@ import reactor.util.function.Tuples;
 
 import java.util.Objects;
 
-import static com.bntech.imperio.instances.config.Constants.api_CREATE_ENGINE;
-import static io.netty.util.CharsetUtil.US_ASCII;
+import static com.bntech.imperio.instances.config.Constants.api_INSTANCE;
 
 @Component
 @Slf4j
@@ -61,22 +60,19 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
 
     @Override
     public Mono<ServerResponse> delete(Mono<Long> instanceId) {
-        return instances
-                .deleteById(instanceId)
-                .then(Mono.just("done"))
-                .flatMap(message -> Util.stringServerResponse(Tuples.of(HttpResponseStatus.OK, message)))
+        return instanceId.flatMap(id -> linodeServices.delete()
+                .uri(api_INSTANCE + "?id=" + id)
+                .responseSingle(Util::externalStringResponse)
                 .onErrorResume(ex -> {
                     if (ex instanceof EmptyResultDataAccessException) {
 
-                        return Util.stringServerResponse(Tuples.of(HttpResponseStatus.NOT_FOUND, "not found"));
+                        return Util.serverResponse(Tuples.of(HttpResponseStatus.NOT_FOUND, "not found"));
                     } else {
 
-                        return Util.stringServerResponse(Tuples.of(HttpResponseStatus.INTERNAL_SERVER_ERROR, ex.getMessage()));
+                        return Util.serverResponse(Tuples.of(HttpResponseStatus.INTERNAL_SERVER_ERROR, ex.getMessage()));
                     }
-                });
+                }));
     }
-
-
 
 
     Mono<ServerResponse> linodeServicesDeploySingleEngine(Mono<InstanceCreateRequest> instance) {
@@ -84,16 +80,9 @@ public class SingleInstanceServiceImpl implements SingleInstanceService {
                 .flatMap(bytes -> linodeServices
                         .headers(headers -> headers.set(HttpHeaderNames.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
                         .post()
-                        .uri(api_CREATE_ENGINE)
+                        .uri(api_INSTANCE)
                         .send(Mono.just(Unpooled.wrappedBuffer(bytes)))
-                        .responseSingle((res, buf) -> buf
-                                .map(buff -> {
-                                    log.info("instanceService.inside req [ {} ][ {} ][ {} ][ {} ]",
-                                            res.status(), res.fullPath(), res.uri(), res.method());
-
-                                    return Tuples.of(res.status(), buff.toString(US_ASCII));
-                                }))
-                        .flatMap(Util::stringServerResponse)
+                        .responseSingle(Util::externalStringResponse)
                         .flatMap(response -> {
                             if (response.statusCode() == HttpStatus.OK) {
 

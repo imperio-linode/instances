@@ -67,7 +67,7 @@ public class InstanceHandler {
 
     public Mono<ServerResponse> update(ServerRequest request) {
         return updater.updateInstances()
-                .transform(Util::stringServerResponse);
+                .transform(Util::serverResponse);
     }
 
     public Mono<ServerResponse> delete(ServerRequest request) {
