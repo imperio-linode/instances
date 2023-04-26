@@ -10,15 +10,18 @@ import com.bntech.imperio.instances.service.InstanceService;
 import com.bntech.imperio.instances.service.InstanceSubcomponentsService;
 import com.bntech.imperio.instances.service.SingleInstanceService;
 import com.bntech.imperio.instances.service.util.TypeConverter;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.bntech.imperio.instances.service.util.TypeConverter.inetListToStringList;
@@ -29,14 +32,16 @@ public class InstanceServiceImpl implements InstanceService {
     private final InstanceRepo instances;
     private final SingleInstanceService singleInstances;
     private final InstanceSubcomponentsService subcomponentsService;
+    private final TaskExecutor taskExecutor;
 
     @Autowired
     public InstanceServiceImpl(InstanceRepo instances,
                                SingleInstanceServiceImpl singleInstances,
-                               InstanceSubcomponentsServiceImpl subcomponentsService) {
+                               InstanceSubcomponentsServiceImpl subcomponentsService, TaskExecutor taskExecutor) {
         this.instances = instances;
         this.singleInstances = singleInstances;
         this.subcomponentsService = subcomponentsService;
+        this.taskExecutor = taskExecutor;
     }
 
     @Override
@@ -57,8 +62,8 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Override
     public Flux<InstanceLinodeResponseDto> upsertLinodeData(List<InstanceLinodeResponseDto> linodeResponseDtos) {
+        taskExecutor.execute(new UpsertPurgerThread(linodeResponseDtos));
         return Flux.fromIterable(linodeResponseDtos)
-                //todo: rework to make map and insert all instead of few inserts
                 .flatMap(dto -> {
                     log.info("Upserting instance: {}", dto.id());
 
@@ -66,6 +71,52 @@ public class InstanceServiceImpl implements InstanceService {
                             .flatMap(fromDatabase -> upsertUpdater(dto, fromDatabase))
                             .switchIfEmpty(this.upsertCreator(dto));
                 });
+    }
+
+    @Override
+    public Mono<ServerResponse> deleteInstance(String id) {
+        return singleInstances.delete(Mono.just(Long.valueOf(id)));
+    }
+
+    @Override
+    public Mono<InstanceLinodeResponseDto> queryToResponse(Mono<InstanceDetailsDbQueryDto> dto) {
+        return dto.flatMap(detailsDto -> Mono.just(new InstanceLinodeResponseDto(
+                InstanceLinodeResponseDto.InstanceLinodeReplyAlertDto.builder()
+                        .cpu(detailsDto.getI_alert_cpu())
+                        .io(detailsDto.getI_alert_io())
+                        .network_in(detailsDto.getI_alert_network_in())
+                        .network_out(detailsDto.getI_alert_network_out())
+                        .transfer_quota(detailsDto.getI_alert_transfer_quota())
+                        .build(),
+                InstanceLinodeResponseDto.InstanceLinodeReplyBackupDto.builder()
+                        .available(detailsDto.getInstance_backup_available())
+                        .enabled(detailsDto.getInstance_backup_enabled())
+                        .last_successful(detailsDto.getInstance_last_successful())
+                        .schedule(InstanceLinodeResponseDto.InstanceLinodeReplyBackupScheduleDto.builder()
+                                .day(detailsDto.getInstance_backup_day())
+                                .window(detailsDto.getInstance_backup_window()).build())
+                        .build(),
+                detailsDto.getInstance_created(),
+                detailsDto.getInstance_group(),
+                detailsDto.getInstance_host_uuid(),
+                detailsDto.getInstance_hypervisor(),
+                Long.parseLong(detailsDto.getInstance_id().toString()),
+                detailsDto.getInstance_image(),
+                inetListToStringList(detailsDto.getI_ip_v4()),
+                detailsDto.getI_ip_v6().toString(),
+                detailsDto.getInstance_label(),
+                InstanceLinodeResponseDto.InstanceLinodeReplySpecsDto.builder()
+                        .disk(detailsDto.getI_spec_disk())
+                        .memory(detailsDto.getI_spec_memory())
+                        .transfer(detailsDto.getI_spec_transfer())
+                        .vcpus(detailsDto.getI_spec_vcpu()).build(),
+                detailsDto.getInstance_status(),
+                detailsDto.getInstance_tags(),
+                detailsDto.getInstance_type(),
+                detailsDto.getInstance_updated(),
+                detailsDto.getInstance_watchdog_enable(),
+                detailsDto.getInstance_region()))
+        );
     }
 
     private Mono<InstanceLinodeResponseDto> upsertCreator(InstanceLinodeResponseDto dto) {
@@ -118,50 +169,24 @@ public class InstanceServiceImpl implements InstanceService {
         return Mono.just(update);
     }
 
-    @Override
-    public Mono<ServerResponse> deleteInstance(String id) {
-        return singleInstances.delete(Mono.just(Long.valueOf(id)));
-    }
+    @AllArgsConstructor
+    class UpsertPurgerThread implements Runnable {
+        List<InstanceLinodeResponseDto> linodeResponseDtos;
 
+        @Override
+        public void run() {
+            List<Long> ids = new ArrayList<>();
+            linodeResponseDtos.forEach(inputDto -> {
+                log.info("foreach: {}", inputDto.id());
+                ids.add(inputDto.id());
+            });
 
-    @Override
-    public Mono<InstanceLinodeResponseDto> queryToResponse(Mono<InstanceDetailsDbQueryDto> dto) {
-        return dto.flatMap(detailsDto -> Mono.just(new InstanceLinodeResponseDto(
-                InstanceLinodeResponseDto.InstanceLinodeReplyAlertDto.builder()
-                        .cpu(detailsDto.getI_alert_cpu())
-                        .io(detailsDto.getI_alert_io())
-                        .network_in(detailsDto.getI_alert_network_in())
-                        .network_out(detailsDto.getI_alert_network_out())
-                        .transfer_quota(detailsDto.getI_alert_transfer_quota())
-                        .build(),
-                InstanceLinodeResponseDto.InstanceLinodeReplyBackupDto.builder()
-                        .available(detailsDto.getInstance_backup_available())
-                        .enabled(detailsDto.getInstance_backup_enabled())
-                        .last_successful(detailsDto.getInstance_last_successful())
-                        .schedule(InstanceLinodeResponseDto.InstanceLinodeReplyBackupScheduleDto.builder()
-                                .day(detailsDto.getInstance_backup_day())
-                                .window(detailsDto.getInstance_backup_window()).build())
-                        .build(),
-                detailsDto.getInstance_created(),
-                detailsDto.getInstance_group(),
-                detailsDto.getInstance_host_uuid(),
-                detailsDto.getInstance_hypervisor(),
-                Long.parseLong(detailsDto.getInstance_id().toString()),
-                detailsDto.getInstance_image(),
-                inetListToStringList(detailsDto.getI_ip_v4()),
-                detailsDto.getI_ip_v6().toString(),
-                detailsDto.getInstance_label(),
-                InstanceLinodeResponseDto.InstanceLinodeReplySpecsDto.builder()
-                        .disk(detailsDto.getI_spec_disk())
-                        .memory(detailsDto.getI_spec_memory())
-                        .transfer(detailsDto.getI_spec_transfer())
-                        .vcpus(detailsDto.getI_spec_vcpu()).build(),
-                detailsDto.getInstance_status(),
-                detailsDto.getInstance_tags(),
-                detailsDto.getInstance_type(),
-                detailsDto.getInstance_updated(),
-                detailsDto.getInstance_watchdog_enable(),
-                detailsDto.getInstance_region()))
-        );
+            if (!ids.isEmpty()) {
+                instances.deleteByNotInIds(ids).subscribe();
+            } else {
+                log.warn("No records returned. Purging db");
+                instances.deleteAll().subscribe();
+            }
+        }
     }
 }
